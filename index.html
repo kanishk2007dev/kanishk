@@ -611,6 +611,26 @@
                 }
             }
 
+            // Helper function to escape HTML special characters
+            function escapeHTML(str) {
+                return str.replace(/[&<>"']/g, function (m) {
+                    switch (m) {
+                        case '&':
+                            return '&amp;';
+                        case '<':
+                            return '&lt;';
+                        case '>':
+                            return '&gt;';
+                        case '"':
+                            return '&quot;';
+                        case "'":
+                            return '&#39;';
+                        default:
+                            return m;
+                    }
+                });
+            }
+
             // Function to render web results
             function renderWebResults(query) {
                 webResults.innerHTML = '';
@@ -645,7 +665,7 @@
                 // Add search query to conversation history
                 const userQueryCard = document.createElement('div');
                 userQueryCard.className = 'ai-card w-full card-bg-gradient rounded-2xl p-6 shadow-lg';
-                userQueryCard.innerHTML = `<span class="text-gray-300"><b>You:</b> ${query}</span>`;
+                userQueryCard.innerHTML = `<span class="text-gray-300"><b>You:</b> ${escapeHTML(query)}</span>`;
                 searchResults.appendChild(userQueryCard);
 
                 // Check for hardcoded knowledge panel entries first
