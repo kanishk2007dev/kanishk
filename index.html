@@ -636,18 +636,30 @@
                 webResults.innerHTML = '';
 
                 const dummyResults = [
-                    { title: `About ${query}`, url: `https://example.com/about/${query.toLowerCase().replace(/\s/g, '-')}`, snippet: `Learn more about the history and details of ${query}.` },
-                    { title: `${query} products and services`, url: `https://example.com/${query.toLowerCase().replace(/\s/g, '-')}/products`, snippet: `A comprehensive list of products and services provided by ${query}.` },
-                    { title: `${query} News and Updates`, url: `https://example.com/news/${query.toLowerCase().replace(/\s/g, '-')}`, snippet: `The latest news and announcements regarding ${query}.` }
+                    { 
+                        title: `About ${escapeHTML(query)}`, 
+                        url: `https://example.com/about/${encodeURIComponent(query.toLowerCase().replace(/\s/g, '-'))}`, 
+                        snippet: `Learn more about the history and details of ${escapeHTML(query)}.`
+                    },
+                    { 
+                        title: `${escapeHTML(query)} products and services`, 
+                        url: `https://example.com/${encodeURIComponent(query.toLowerCase().replace(/\s/g, '-'))}/products`, 
+                        snippet: `A comprehensive list of products and services provided by ${escapeHTML(query)}.`
+                    },
+                    { 
+                        title: `${escapeHTML(query)} News and Updates`, 
+                        url: `https://example.com/news/${encodeURIComponent(query.toLowerCase().replace(/\s/g, '-'))}`, 
+                        snippet: `The latest news and announcements regarding ${escapeHTML(query)}.`
+                    }
                 ];
                 
                 dummyResults.forEach(result => {
                     const resultDiv = document.createElement('div');
                     resultDiv.className = "card-bg-gradient rounded-xl p-4 shadow-md hover:ring-2 hover:ring-cyan-500 transition-shadow";
                     resultDiv.innerHTML = `
-                        <h4 class="text-xl font-semibold text-cyan-400"><a href="${result.url}" target="_blank" rel="noopener noreferrer">${result.title}</a></h4>
-                        <p class="text-green-500 text-sm mt-1">${result.url}</p>
-                        <p class="text-gray-400 mt-2">${result.snippet}</p>
+                        <h4 class="text-xl font-semibold text-cyan-400"><a href="${escapeHTML(result.url)}" target="_blank" rel="noopener noreferrer">${escapeHTML(result.title)}</a></h4>
+                        <p class="text-green-500 text-sm mt-1">${escapeHTML(result.url)}</p>
+                        <p class="text-gray-400 mt-2">${escapeHTML(result.snippet)}</p>
                     `;
                     webResults.appendChild(resultDiv);
                 });
