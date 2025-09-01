@@ -13,6 +13,24 @@
             font-family: 'Inter', sans-serif;
             color: #E2E8F0;
             background-color: #0F172A;
+            /* New background styles */
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/2/22/Krop_Digital_Media_Entertainment_Corporation_%28KDEC%29_company_icon.svg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            position: relative;
+        }
+
+        /* Semi-transparent overlay for readability */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: -1;
         }
 
         /* Custom gradient for titles and elements */
@@ -113,13 +131,9 @@
             <div class="z-10 max-w-4xl space-y-6">
                  <!-- New Rebranding Banner -->
                 <div class="mb-8 p-4 bg-slate-800/50 rounded-lg backdrop-blur-sm shadow-md border border-slate-700 flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-8">
-                    <!-- KDEC Logo as Text SVG -->
+                    <!-- KDEC Logo as Image -->
                     <div class="flex items-center space-x-2">
-                         <svg class="h-16 w-auto" viewBox="0 0 1387 1168" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="693.5" cy="554" r="531.75" stroke="white" stroke-width="47.25"/>
-                            <text x="50%" y="50%" font-family="'Inter', sans-serif" font-weight="900" font-size="250" fill="white" dominant-baseline="middle" text-anchor="middle">KDEC</text>
-                            <text x="50%" y="75%" font-family="'Inter', sans-serif" font-weight="900" font-size="80" fill="white" dominant-baseline="middle" text-anchor="middle">Entertainment And Game</text>
-                        </svg>
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/2/22/Krop_Digital_Media_Entertainment_Corporation_%28KDEC%29_company_icon.svg" alt="Krop Digital Media Entertainment Corporation (KDEC) logo" class="h-16 w-auto">
                     </div>
                     <!-- Rebrand Text -->
                     <div class="text-sm font-light text-gray-400">
@@ -335,7 +349,7 @@
             <div class="max-w-4xl mx-auto space-y-8">
                 <form id="searchForm" class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
                     <input type="text" id="searchInput" placeholder="Search for people, companies, or anything..." class="w-full sm:w-2/3 bg-slate-800 border border-slate-700 rounded-full py-3 px-6 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-colors">
-                    <button type="submit" class="w-full sm:w-1/3 px-8 py-3 rounded-full font-semibold shadow-lg transition-transform transform hover:scale-105 neon-button-gradient">
+                    <button type="submit" class="w-full sm:w-1/3 px-8 py-4 rounded-full font-semibold shadow-lg transition-transform transform hover:scale-105 neon-button-gradient">
                         KDEC Search
                     </button>
                 </form>
@@ -421,7 +435,7 @@
                 <form id="sevenmailForm" class="space-y-6">
                     <div>
                         <input type="text" id="sevenmailUsername" placeholder="Choose your username" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-3 px-4 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-colors">
-                        <p id="sevenmail-preview" class="text-sm text-gray-500 mt-2">kanishk@7mail.com</p>
+                        <!-- Removed preview element as requested -->
                     </div>
                     <div>
                         <input type="password" id="sevenmailPassword" placeholder="Choose a password" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-3 px-4 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-colors">
@@ -474,7 +488,6 @@
             const mobileNavLinks = document.querySelectorAll('#mobile-menu a');
             const sevenmailForm = document.getElementById('sevenmailForm');
             const sevenmailUsernameInput = document.getElementById('sevenmailUsername');
-            const sevenmailPreview = document.getElementById('sevenmail-preview');
             const sevenmailStatusMessage = document.getElementById('sevenmail-status-message');
 
             const searchForm = document.getElementById('searchForm');
@@ -802,7 +815,6 @@
                     sevenmailStatusMessage.textContent = "A permanent mail account has been created for kanishk@7mail.com.";
                     sevenmailStatusMessage.classList.remove('hidden');
                     sevenmailForm.reset();
-                    sevenmailPreview.textContent = 'username@7mail.com';
                 } else {
                     sevenmailStatusMessage.classList.remove('hidden');
                     sevenmailStatusMessage.textContent = 'Please enter a username and password.';
@@ -811,17 +823,8 @@
                 }
             });
 
-            // 7mail username input listener
-            sevenmailUsernameInput.addEventListener('input', (e) => {
-                const username = e.target.value.trim();
-                if (username) {
-                    sevenmailPreview.textContent = `${username}@7mail.com`;
-                } else {
-                    sevenmailPreview.textContent = 'username@7mail.com';
-                }
-                sevenmailStatusMessage.classList.add('hidden');
-            });
-
+            // Removed preview input listener as requested
+            
             // Search form listener
             searchForm.addEventListener('submit', handleSearch);
         });
