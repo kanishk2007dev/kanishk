@@ -5,7 +5,7 @@ const app = express();
 const PORT = 3000;
 
 // IMPORTANT: Replace with your actual Gemini API Key
-const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"; 
+const GEMINI_API_KEY = "AIzaSyDK3Nn3HJPmtJ0DdtduSnxUq0R5hbdc8Ls"; 
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
