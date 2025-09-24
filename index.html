@@ -72,6 +72,8 @@
             position: relative;
         }
     </style>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7150683500942089"
+     crossorigin="anonymous"></script>
 </head>
 <body class="bg-gray-900 text-gray-200">
 
@@ -213,7 +215,7 @@
             <h2 class="text-3xl sm:text-4xl font-bold text-center mb-12 neon-text-gradient">Latest News & Updates</h2>
             <div class="card-bg-gradient rounded-2xl p-8 shadow-xl">
                 <div class="flex flex-col md:flex-row items-center md:items-start md:space-x-6 space-y-6 md:space-y-0">
-                    <img src="https://m.media-amazon.com/images/M/MV5BZmVlNzBlMzItMjQ3My00YjVjLThiODItNGYzNDUyYTNlNTQ0XkEyXkFqcGdeQXVyMTYzNTc3MTYw._V1_.jpg" alt="Kanishk Mahawar, founder of KDEC" class="w-48 h-48 rounded-full object-cover border-4 border-cyan-500 shadow-md flex-shrink-0">
+                    <img src="https://m.media-amazon.com/images/M/MV5BZmVlNzBlMzItMjQ3My00YjVjLThiODItNGYzNDUyTBNlNTQ0XkEyXkFqcGdeQXVyMTYzNTc3MTYw._V1_.jpg" alt="Kanishk Mahawar, founder of KDEC" class="w-48 h-48 rounded-full object-cover border-4 border-cyan-500 shadow-md flex-shrink-0">
                     <div>
                         <p class="text-gray-300 text-lg mb-6 leading-relaxed">
                             <strong>Kanishk Mahawar</strong>, the creative force behind **Krop Digital Media Entertainment Corporation (KDEC)**, continues to transform the digital entertainment space in India with groundbreaking content, innovative storytelling, and a powerful connection to audiences worldwide.
@@ -687,15 +689,15 @@
                 return str.replace(/[&<>"']/g, function (m) {
                     switch (m) {
                         case '&':
-                            return '&';
+                            return '&amp;';
                         case '<':
-                            return '<';
+                            return '&lt;';
                         case '>':
-                            return '>';
+                            return '&gt;';
                         case '"':
-                            return '"';
+                            return '&quot;';
                         case "'":
-                            return ''';
+                            return '&#039;';
                         default:
                             return m;
                     }
