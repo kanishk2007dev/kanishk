@@ -1,1 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Example Chat</title>
+  <style>
+    /* Minimal styles so the example looks OK without dependencies */
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; padding: 20px; }
+    #chat-content { max-height: 60vh; overflow-y: auto; border: 1px solid #e5e7eb; padding: 12px; border-radius: 8px; background: #f9fafb; }
+    .max-w-md { max-width: 60%; }
+    .ml-auto { margin-left: auto; }
+    .mr-auto { margin-right: auto; }
+    .bg-blue-500 { background: #3b82f6; color: white; }
+    .bg-white { background: white; color: #111827; }
+    .rounded-full { border-radius: 9999px; }
+    .my-2 { margin: 8px 0; }
+    .px-4 { padding-left: 16px; padding-right: 16px; }
+    .py-2 { padding-top: 8px; padding-bottom: 8px; }
+    .text-xs { font-size: 0.75rem; }
+    .text-gray-400 { color: #9ca3af; }
+  </style>
+</head>
+<body>
+  <h1>Example Chat</h1>
 
+  <div id="chat-content" aria-live="polite"></div>
+
+  <form id="chat-form" style="display:flex; gap:8px; margin-top:12px;">
+    <input id="user-input" type="text" placeholder="Type a message..." style="flex:1; padding:8px; border-radius:6px; border:1px solid #d1d5db;" />
+    <button type="submit" style="padding:8px 12px; border-radius:6px;">Send</button>
+  </form>
+
+  <!-- Load the client script (assumes file is at public/js/chat.js served at /js/chat.js) -->
+  <script src="js/chat.js"></script>
+</body>
+</html>
