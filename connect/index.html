@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polished WebRTC Calling App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .animated-bg {
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .video-container {
+            @apply relative bg-gray-900 rounded-lg overflow-hidden shadow-lg aspect-video;
+        }
+        video {
+            @apply w-full h-full object-cover;
+            transform: scaleX(-1); /* Mirror effect */
+        }
+        .local-video {
+            @apply absolute w-1/4 max-w-[150px] bottom-4 right-4 rounded-md border-2 border-white shadow-xl transition-opacity duration-300;
+        }
+        .control-card {
+            @apply bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-md border border-gray-200/50;
+        }
+        #status {
+            @apply text-center my-4 p-2 rounded-md bg-white/80 backdrop-blur-sm text-gray-800 font-medium text-sm transition-all duration-300;
+        }
+        .background-logo {
+            @apply absolute inset-0 m-auto w-1/2 h-1/2 max-w-xs max-h-xs object-contain opacity-10 pointer-events-none;
+        }
+    </style>
+</head>
+<body class="animated-bg text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-white drop-shadow-md">PeerConnect</h1>
+            <p class="text-white/90 drop-shadow-sm mt-2">Secure video & audio calls with an animated touch.</p>
+        </header>
+
+        <main>
+            <!-- Video Feeds -->
+            <div class="video-container mb-6">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/2/22/Krop_Digital_Media_Entertainment_Corporation_%28KDEC%29_company_icon.svg" alt="Background Logo" class="background-logo">
+                <video id="remoteVideo" autoplay playsinline class="bg-transparent"></video>
+                <video id="localVideo" autoplay playsinline muted class="local-video"></video>
+                <div id="placeholder" class="absolute inset-0 flex items-center justify-center bg-transparent">
+                    <div id="placeholder-content" class="text-center text-white p-4 rounded-lg bg-black bg-opacity-20 backdrop-blur-sm">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.55a1 1 0 011.45.89V16.11a1 1 0 01-1.45.89L15 14M5 9a2 2 0 012-2h4a2 2 0 012 2v6a2 2 0 01-2 2H7a2 2 0 01-2-2V9z" />
+                        </svg>
+                        <h3 class="mt-2 text-sm font-medium">Remote feed will appear here</h3>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="status">Please start your device to begin.</div>
+
+            <!-- Controls -->
+            <div class="grid md:grid-cols-2 gap-6" id="controls">
+                <div class="control-card">
+                    <h2 class="text-lg font-semibold mb-3 flex items-center"><span class="bg-indigo-500 text-white rounded-full h-6 w-6 text-sm flex items-center justify-center mr-3">1</span> Start Device</h2>
+                    <button id="startButton" class="w-full bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition shadow-md hover:shadow-lg">
+                        Start Camera & Mic
+                    </button>
+                </div>
+
+                <div class="control-card opacity-50 pointer-events-none" id="join-card">
+                    <h2 class="text-lg font-semibold mb-3 flex items-center"><span class="bg-indigo-500 text-white rounded-full h-6 w-6 text-sm flex items-center justify-center mr-3">2</span> Create or Join Room</h2>
+                    <input type="text" id="roomId" placeholder="Enter a secret room name" class="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 mb-3">
+                    <div class="flex space-x-2">
+                        <button id="joinVideoButton" class="w-full bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-700 transition shadow-md hover:shadow-lg">Video Call</button>
+                        <button id="joinAudioButton" class="w-full bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition shadow-md hover:shadow-lg">Audio Call</button>
+                    </div>
+                     <button id="hangupButton" class="w-full mt-3 bg-red-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-700 transition shadow-md hover:shadow-lg" disabled>Hang Up</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, addDoc, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const {
+            startButton, joinVideoButton, joinAudioButton, hangupButton, roomId: roomIdInput,
+            localVideo, remoteVideo, placeholder, placeholderContent, joinCard, status: statusDiv
+        } = Object.fromEntries(Object.entries({startButton:0, joinVideoButton:0, joinAudioButton:0, hangupButton:0, roomId:0, localVideo:0, remoteVideo:0, placeholder:0, placeholderContent:0, joinCard:0, status:0}).map(([id]) => [id, document.getElementById(id)]));
+
+        // --- Firebase Setup ---
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-webrtc-app';
+        let db, auth;
+        try {
+            const firebaseConfig = JSON.parse(__firebase_config);
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+        } catch (e) {
+            statusDiv.textContent = "Error: Backend configuration is missing.";
+            // FIX: Removed illegal return statement from the top-level module scope.
+        }
+       
+        // --- WebRTC Globals ---
+        let localStream, remoteStream, peerConnection, currentRoomId;
+        const configuration = { iceServers: [{ urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302'] }] };
+
+        // --- Event Listeners ---
+        startButton.addEventListener('click', start);
+        joinVideoButton.addEventListener('click', () => joinCall('video'));
+        joinAudioButton.addEventListener('click', () => joinCall('audio'));
+        hangupButton.addEventListener('click', hangUp);
+        window.addEventListener('beforeunload', () => { if (currentRoomId) hangUp(); });
+
+        async function authenticate() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                statusDiv.textContent = "Authentication failed. Cannot connect.";
+            }
+        }
+
+        async function start() {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                localVideo.srcObject = localStream;
+                startButton.disabled = true;
+                joinCard.classList.remove('opacity-50', 'pointer-events-none');
+                statusDiv.textContent = 'Device is on. Enter a room name to start a call.';
+            } catch (error) {
+                statusDiv.textContent = "Could not access camera/mic. Please check permissions.";
+            }
+        }
+
+        function manageLocalTracks(callType) {
+            if (!localStream) return;
+            localStream.getVideoTracks().forEach(track => track.enabled = callType === 'video');
+            localVideo.style.opacity = callType === 'video' ? '1' : '0';
+        }
+
+        async function joinCall(callType) {
+            const roomId = roomIdInput.value.trim();
+            if (!roomId) { alert("Please enter a room name."); return; }
+            
+            currentRoomId = roomId;
+            manageLocalTracks(callType);
+
+            joinVideoButton.disabled = true;
+            joinAudioButton.disabled = true;
+            roomIdInput.disabled = true;
+            hangupButton.disabled = false;
+            
+            const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'webrtc_calls', currentRoomId);
+            const callDoc = await getDoc(roomRef);
+
+            peerConnection = new RTCPeerConnection(configuration);
+            registerPeerConnectionListeners();
+            localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+            const callerCandidatesCollection = collection(roomRef, 'callerCandidates');
+            const calleeCandidatesCollection = collection(roomRef, 'calleeCandidates');
+
+            peerConnection.onicecandidate = event => {
+                if (event.candidate) {
+                    addDoc(callDoc.exists() ? calleeCandidatesCollection : callerCandidatesCollection, event.candidate.toJSON());
+                }
+            };
+
+            if (!callDoc.exists()) { // Caller
+                statusDiv.textContent = 'Creating room... Please wait.';
+                const offer = await peerConnection.createOffer();
+                await peerConnection.setLocalDescription(offer);
+                await setDoc(roomRef, { offer: { type: offer.type, sdp: offer.sdp } });
+                statusDiv.textContent = 'Room created. Waiting for another person...';
+                
+                onSnapshot(roomRef, snapshot => {
+                    const data = snapshot.data();
+                    if (data && !peerConnection.currentRemoteDescription && data.answer) {
+                        peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+                    }
+                });
+
+                onSnapshot(calleeCandidatesCollection, snapshot => {
+                    snapshot.docChanges().forEach(change => {
+                        if (change.type === 'added') peerConnection.addIceCandidate(new RTCIceCandidate(change.doc.data()));
+                    });
+                });
+            } else { // Callee
+                statusDiv.textContent = 'Joining room...';
+                const offer = callDoc.data().offer;
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+                const answer = await peerConnection.createAnswer();
+                await peerConnection.setLocalDescription(answer);
+                await updateDoc(roomRef, { answer: { type: answer.type, sdp: answer.sdp } });
+                statusDiv.textContent = 'Joined room. Connecting...';
+
+                onSnapshot(callerCandidatesCollection, snapshot => {
+                    snapshot.docChanges().forEach(change => {
+                        if (change.type === 'added') peerConnection.addIceCandidate(new RTCIceCandidate(change.doc.data()));
+                    });
+                });
+            }
+        }
+        
+        function registerPeerConnectionListeners() {
+            peerConnection.onconnectionstatechange = () => {
+                const state = peerConnection.connectionState;
+                if (state === 'connected') {
+                    statusDiv.textContent = 'Connected!';
+                    statusDiv.style.backgroundColor = 'rgba(220, 252, 231, 0.8)';
+                }
+                if (state === 'disconnected' || state === 'failed' || state === 'closed') {
+                    hangUp();
+                }
+            };
+
+            peerConnection.ontrack = event => {
+                if (!remoteStream) {
+                   remoteStream = new MediaStream();
+                   remoteVideo.srcObject = remoteStream;
+                }
+                remoteStream.addTrack(event.track);
+                const hasVideo = remoteStream.getVideoTracks().some(t => t.enabled);
+                placeholder.classList.toggle('hidden', hasVideo);
+                if (!hasVideo) placeholderContent.innerHTML = `<h3 class="font-medium">Connected via Audio Only</h3>`;
+            };
+        }
+        
+        async function hangUp() {
+            if (!currentRoomId) return; // Prevent multiple hangup calls
+            const roomId = currentRoomId;
+            currentRoomId = null; // Mark as hung up
+
+            if (peerConnection) peerConnection.close();
+            if (localStream) localStream.getTracks().forEach(track => track.stop());
+            
+            const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'webrtc_calls', roomId);
+            const callerCandidates = await getDocs(collection(roomRef, 'callerCandidates'));
+            callerCandidates.forEach(async candidate => await deleteDoc(candidate.ref));
+            const calleeCandidates = await getDocs(collection(roomRef, 'calleeCandidates'));
+            calleeCandidates.forEach(async candidate => await deleteDoc(candidate.ref));
+            await deleteDoc(roomRef);
+
+            // Reset UI state
+            localVideo.srcObject = null;
+            remoteVideo.srcObject = null;
+            localStream = null;
+            placeholder.classList.remove('hidden');
+            placeholderContent.innerHTML = `<svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.55a1 1 0 011.45.89V16.11a1 1 0 01-1.45.89L15 14M5 9a2 2 0 012-2h4a2 2 0 012 2v6a2 2 0 01-2 2H7a2 2 0 01-2-2V9z" /></svg><h3 class="mt-2 text-sm font-medium">Remote feed will appear here</h3>`;
+            
+            startButton.disabled = false;
+            joinVideoButton.disabled = false;
+            joinAudioButton.disabled = false;
+            hangupButton.disabled = true;
+            roomIdInput.disabled = false;
+            roomIdInput.value = '';
+            statusDiv.textContent = 'Call ended. Start your device to begin a new call.';
+            statusDiv.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+            joinCard.classList.add('opacity-50', 'pointer-events-none');
+        }
+
+        authenticate();
+    </script>
+</body>
+</html>
+
