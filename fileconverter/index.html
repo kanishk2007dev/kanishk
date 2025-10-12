@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered Image Converter</title>
+    <!-- Library for PDF Conversion -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Library for SVG Conversion (Tracing) -->
+    <script src="https://unpkg.com/potrace@2.1.8/potrace.js"></script>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --background-color: #f4f7f9;
+            --card-background: #ffffff;
+            --text-color: #333;
+            --border-color: #e9ecef;
+            --ai-accent-color: #8e44ad;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--background-color);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding: 40px 20px;
+            box-sizing: border-box;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80vw;
+            height: 80vh;
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/2/22/Krop_Digital_Media_Entertainment_Corporation_%28KDEC%29_company_icon.svg');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+            opacity: 0.04;
+            z-index: -1;
+        }
+
+        .converter-container {
+            background: var(--card-background);
+            width: 100%;
+            max-width: 650px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            color: var(--text-color);
+            margin-bottom: 15px;
+            font-size: 28px;
+        }
+        
+        p.subtitle {
+            color: #666;
+            margin-top: 0;
+            margin-bottom: 30px;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 10px;
+            padding: 40px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        
+        .upload-area:hover, .upload-area.dragover {
+            background-color: #f8f9fa;
+            border-color: var(--primary-color);
+        }
+        
+        .upload-area p { margin: 0; font-size: 16px; color: var(--secondary-color); }
+        .upload-area strong { color: var(--primary-color); }
+        #file-input { display: none; }
+
+        #preview-container { display: none; margin-top: 25px; text-align: center; }
+        #image-preview { max-width: 100%; max-height: 250px; border-radius: 8px; border: 1px solid var(--border-color); }
+        #file-info { font-size: 14px; color: #555; margin-top: 10px; }
+
+        #conversion-controls, #ai-tools { display: none; margin-top: 25px; text-align: left; }
+        h3 { margin-bottom: 20px; color: #444; font-weight: 500; text-align: center; }
+        
+        .controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: start; }
+        .resize-options .input-group { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
+        .resize-options label { font-weight: 500; width: 60px; }
+        .resize-options input[type="number"] { width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 15px; }
+        .resize-options .aspect-ratio-lock { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; color: #555; }
+
+        .button-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; }
+        .convert-btn { background-color: var(--primary-color); color: white; border: none; padding: 12px 15px; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer; transition: background-color 0.3s ease, transform 0.2s ease; }
+        .convert-btn:hover { background-color: #0056b3; transform: translateY(-2px); }
+        .convert-btn.disabled { background-color: #b0b0b0; cursor: not-allowed; transform: none; }
+        .unsupported-note { font-size: 12px; color: #999; margin-top: 15px; text-align: center; }
+
+        /* --- New AI Tools Styles --- */
+        #ai-tools {
+            border-top: 1px solid var(--border-color);
+            padding-top: 25px;
+        }
+        .ai-buttons { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
+        .ai-btn {
+            background: linear-gradient(45deg, var(--ai-accent-color), #c0392b);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .ai-btn:hover { box-shadow: 0 4px 15px rgba(142, 68, 173, 0.4); transform: translateY(-2px); }
+        #ai-output-container { position: relative; }
+        #ai-output {
+            width: 100%;
+            height: 120px;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            font-size: 14px;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+        #copy-ai-result {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        #copy-ai-result:hover { background-color: #e0e0e0; }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--ai-accent-color);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="converter-container">
+        <h1>🏞️🌄 AI-Powered Image Converter</h1>
+        <p class="subtitle">Resize, convert, and generate content for your images.</p>
+
+        <div id="upload-area">
+            <input type="file" id="file-input" accept="image/jpeg">
+            <p><strong>Click to browse</strong> or drag and drop your file here.</p>
+        </div>
+
+        <div id="preview-container">
+            <img id="image-preview" alt="Image Preview">
+            <p id="file-info"></p>
+        </div>
+
+        <!-- New AI Tools Section -->
+        <div id="ai-tools">
+            <h3>✨ AI-Powered Tools</h3>
+            <div class="ai-buttons">
+                <button id="generate-alt-text-btn" class="ai-btn">Generate Alt Text</button>
+                <button id="generate-social-post-btn" class="ai-btn">Generate Social Post</button>
+            </div>
+            <div id="ai-output-container" style="display: none;">
+                <textarea id="ai-output" placeholder="AI-generated content will appear here..."></textarea>
+                <button id="copy-ai-result" title="Copy to clipboard">Copy</button>
+            </div>
+            <div id="ai-loader" class="loader"></div>
+        </div>
+        
+        <div id="conversion-controls">
+            <div class="controls-grid">
+                <div class="resize-options">
+                    <h3>Resize (Optional)</h3>
+                    <div class="input-group"><label for="width-input">Width:</label><input type="number" id="width-input" min="1"></div>
+                    <div class="input-group"><label for="height-input">Height:</label><input type="number" id="height-input" min="1"></div>
+                    <div class="aspect-ratio-lock"><input type="checkbox" id="aspect-ratio-lock-checkbox" checked><label for="aspect-ratio-lock-checkbox">Lock aspect ratio</label></div>
+                </div>
+                <div class="conversion-buttons">
+                    <h3>Convert To</h3>
+                    <div class="button-grid">
+                        <button class="convert-btn" data-format="png">PNG</button>
+                        <button class="convert-btn" data-format="webp">WEBP</button>
+                        <button class="convert-btn" data-format="svg">SVG</button>
+                        <button class="convert-btn" data-format="bmp">BMP</button>
+                        <button class="convert-btn" data-format="pdf">PDF</button>
+                        <button class="convert-btn disabled" title="Unsupported format">GIF</button>
+                    </div>
+                </div>
+            </div>
+            <p class="unsupported-note">Complex/proprietary formats are not supported. This tool works entirely in your browser.</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const uploadArea = document.getElementById('upload-area');
+            const fileInput = document.getElementById('file-input');
+            const previewContainer = document.getElementById('preview-container');
+            const imagePreview = document.getElementById('image-preview');
+            const fileInfo = document.getElementById('file-info');
+            const conversionControls = document.getElementById('conversion-controls');
+            const widthInput = document.getElementById('width-input');
+            const heightInput = document.getElementById('height-input');
+            const aspectRatioLock = document.getElementById('aspect-ratio-lock-checkbox');
+
+            // AI Tool Elements
+            const aiToolsSection = document.getElementById('ai-tools');
+            const generateAltTextBtn = document.getElementById('generate-alt-text-btn');
+            const generateSocialPostBtn = document.getElementById('generate-social-post-btn');
+            const aiOutputContainer = document.getElementById('ai-output-container');
+            const aiOutput = document.getElementById('ai-output');
+            const aiLoader = document.getElementById('ai-loader');
+            const copyAiResultBtn = document.getElementById('copy-ai-result');
+            
+            let sourceImage = {
+                dataURL: null,
+                base64Data: null,
+                filename: 'converted',
+                originalWidth: 0,
+                originalHeight: 0,
+                aspectRatio: 1
+            };
+
+            uploadArea.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', handleFileSelect);
+            uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+            uploadArea.addEventListener('dragleave', () => { uploadArea.classList.remove('dragover'); });
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                if (e.dataTransfer.files.length > 0) {
+                    fileInput.files = e.dataTransfer.files;
+                    handleFileSelect();
+                }
+            });
+            
+            function handleFileSelect() {
+                const file = fileInput.files[0];
+                if (!file || !file.type.startsWith('image/jpeg')) {
+                    alert('Please select a valid JPG file.');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    sourceImage.dataURL = e.target.result;
+                    sourceImage.base64Data = sourceImage.dataURL.split(',')[1];
+                    sourceImage.filename = file.name.split('.').slice(0, -1).join('.');
+                    const img = new Image();
+                    img.onload = () => {
+                        sourceImage.originalWidth = img.width;
+                        sourceImage.originalHeight = img.height;
+                        sourceImage.aspectRatio = img.width / img.height;
+                        widthInput.value = img.width;
+                        heightInput.value = img.height;
+                    };
+                    img.src = sourceImage.dataURL;
+                    imagePreview.src = sourceImage.dataURL;
+                    fileInfo.textContent = `${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
+                    previewContainer.style.display = 'block';
+                    conversionControls.style.display = 'block';
+                    aiToolsSection.style.display = 'block';
+                    aiOutputContainer.style.display = 'none';
+                    aiOutput.value = '';
+                };
+                reader.readAsDataURL(file);
+            }
+            
+            widthInput.addEventListener('input', () => { if (aspectRatioLock.checked) { heightInput.value = Math.round(widthInput.value / sourceImage.aspectRatio); } });
+            heightInput.addEventListener('input', () => { if (aspectRatioLock.checked) { widthInput.value = Math.round(heightInput.value * sourceImage.aspectRatio); } });
+
+            conversionControls.addEventListener('click', (e) => {
+                const target = e.target;
+                if (!target.classList.contains('convert-btn') || target.classList.contains('disabled')) return;
+                const format = target.dataset.format;
+                if (format === 'pdf') convertAndDownloadPDF();
+                else if (format === 'svg') convertAndDownloadSVG();
+                else convertAndDownloadImage(format);
+            });
+
+            // --- Gemini API Integration ---
+            const apiKey = ""; // Canvas will provide this at runtime
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+            async function callGeminiVision(prompt) {
+                if (!sourceImage.base64Data) {
+                    alert("Please upload an image first.");
+                    return;
+                }
+                aiLoader.style.display = 'block';
+                aiOutputContainer.style.display = 'none';
+                aiOutput.value = '';
+
+                const payload = {
+                    contents: [{
+                        parts: [
+                            { text: prompt },
+                            { inlineData: { mimeType: "image/jpeg", data: sourceImage.base64Data } }
+                        ]
+                    }]
+                };
+
+                let retries = 3;
+                let delay = 1000;
+                while(retries > 0) {
+                    try {
+                        const response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+
+                        const result = await response.json();
+                        const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                        
+                        if (text) {
+                            aiOutput.value = text;
+                            aiOutputContainer.style.display = 'block';
+                        } else {
+                            aiOutput.value = "Sorry, I couldn't generate a response. Please try again.";
+                            aiOutputContainer.style.display = 'block';
+                        }
+                        aiLoader.style.display = 'none';
+                        return; // Success, exit the loop
+
+                    } catch (error) {
+                        console.error('Error calling Gemini API:', error);
+                        retries--;
+                        if (retries === 0) {
+                            aiLoader.style.display = 'none';
+                            aiOutput.value = "An error occurred after multiple retries. Please check the console for details.";
+                            aiOutputContainer.style.display = 'block';
+                        } else {
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                            delay *= 2; // Exponential backoff
+                        }
+                    }
+                }
+            }
+
+            generateAltTextBtn.addEventListener('click', () => {
+                callGeminiVision("Generate a concise and descriptive alt text for this image.");
+            });
+
+            generateSocialPostBtn.addEventListener('click', () => {
+                callGeminiVision("Generate a creative social media post for this image, including a caption and relevant hashtags.");
+            });
+
+            copyAiResultBtn.addEventListener('click', () => {
+                aiOutput.select();
+                try {
+                    document.execCommand('copy');
+                } catch (err) {
+                    console.error('Fallback: Oops, unable to copy', err);
+                }
+            });
+
+
+            // --- Conversion Functions ---
+            function convertAndDownloadImage(format) { /* ... existing code ... */ }
+            function convertAndDownloadSVG() { /* ... existing code ... */ }
+            function convertAndDownloadPDF() { /* ... existing code ... */ }
+            function triggerDownload(href, filename) { /* ... existing code ... */ }
+
+            function convertAndDownloadImage(format) {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = parseInt(widthInput.value, 10);
+                    canvas.height = parseInt(heightInput.value, 10);
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    const mimeType = `image/${format}`;
+                    const dataUrl = canvas.toDataURL(mimeType);
+                    triggerDownload(dataUrl, `${sourceImage.filename}.${format}`);
+                };
+                img.src = sourceImage.dataURL;
+            }
+            
+            function convertAndDownloadSVG() {
+                Potrace.loadImage(sourceImage.dataURL, (img) => {
+                    const poster = new Potrace(img);
+                    poster.setParameters({ turdsize: 2, optcurve: true });
+                    poster.process(() => {
+                        const svg = poster.getSVG();
+                        const svgBlob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+                        const svgUrl = URL.createObjectURL(svgBlob);
+                        triggerDownload(svgUrl, `${sourceImage.filename}.svg`);
+                    });
+                });
+            }
+            
+            function convertAndDownloadPDF() {
+                const { jsPDF } = window.jspdf;
+                const img = new Image();
+                img.onload = () => {
+                    const newWidth = parseInt(widthInput.value, 10);
+                    const newHeight = parseInt(heightInput.value, 10);
+                    const orientation = newWidth > newHeight ? 'l' : 'p';
+                    const doc = new jsPDF(orientation, 'px', [newWidth, newHeight]);
+                    doc.addImage(img, 'JPEG', 0, 0, newWidth, newHeight);
+                    doc.save(`${sourceImage.filename}.pdf`);
+                };
+                img.src = sourceImage.dataURL;
+            }
+
+            function triggerDownload(href, filename) {
+                const link = document.createElement('a');
+                link.href = href;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        });
+    </script>
+
+</body>
+</html>
