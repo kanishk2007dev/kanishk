@@ -1,8 +1,10 @@
-/* --- Global Styles (from your kanishk.css) --- */
+/* --- Global Styles (from your kanishk.css & index.html) --- */
 body {
     font-family: 'Inter', sans-serif;
     color: #E2E8F0;
-    background-color: #0F172A; /* Dark background from your site */
+    /* This is the gradient background from your index.html */
+    background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F172A 100%);
+    position: relative;
     margin: 0;
     padding: 2rem;
     min-height: 100vh;
