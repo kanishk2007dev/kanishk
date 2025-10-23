@@ -1,0 +1,142 @@
+/* --- Global Styles (from your kanishk.css) --- */
+body {
+    font-family: 'Inter', sans-serif;
+    color: #E2E8F0;
+    background-color: #0F172A; /* Dark background from your site */
+    margin: 0;
+    padding: 2rem;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow: hidden; /* Hide overflow from animation */
+}
+
+.error-container {
+    max-width: 600px;
+}
+
+/* --- Text Styles (using your neon gradient) --- */
+.error-code {
+    font-size: 8rem;
+    font-weight: 700;
+    margin: 0;
+    /* This is the neon-text-gradient from your site */
+    background: linear-gradient(90deg, #00C6FF, #0072FF);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    animation: pulse-glow 2.5s ease-in-out infinite;
+}
+
+.error-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #E2E8F0;
+    margin-top: 0;
+    margin-bottom: 1rem;
+}
+
+.error-message {
+    font-size: 1.1rem;
+    color: #94A3B8; /* Muted text color */
+    margin-bottom: 2.5rem;
+    line-height: 1.6;
+}
+
+/* --- Button Style (from your neon-button-gradient) --- */
+.error-button {
+    display: inline-block;
+    padding: 1rem 2.5rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #FFFFFF;
+    text-decoration: none;
+    border-radius: 50px;
+    /* This is the neon-button-gradient from your site */
+    background-image: linear-gradient(90deg, #00C6FF, #0072FF);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 5px 20px rgba(0, 198, 255, 0.3);
+}
+
+.error-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(0, 114, 255, 0.4);
+}
+
+/* --- CSS Animation of Person (Astronaut) --- */
+.animation-container {
+    position: relative;
+    height: 250px;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.person {
+    width: 100px;
+    height: 130px;
+    position: relative;
+    /* This is the main floating animation */
+    animation: float 4s ease-in-out infinite;
+}
+
+.person-body {
+    width: 70px;
+    height: 100px;
+    background: #E2E8F0; /* Main suit color */
+    border-radius: 35px;
+    position: absolute;
+    bottom: 0;
+    left: 15px;
+}
+
+.person-head {
+    width: 80px;
+    height: 80px;
+    background: #cbd5e1; /* Helmet color */
+    border-radius: 50%;
+    position: absolute;
+    top: -20px;
+    left: 10px;
+    overflow: hidden;
+    border: 4px solid #94A3B8;
+}
+
+.person-visor {
+    width: 100%;
+    height: 100%;
+    /* Use your neon gradient for the visor reflection */
+    background: linear-gradient(135deg, #00C6FF 20%, #0072FF 80%);
+    opacity: 0.7;
+    position: absolute;
+}
+
+.person-backpack {
+    width: 40px;
+    height: 60px;
+    background: #94A3B8; /* Backpack color */
+    position: absolute;
+    bottom: 20px;
+    left: -10px;
+    border-radius: 10px;
+}
+
+/* --- Keyframes for Animations --- */
+
+/* Floating animation */
+@keyframes float {
+    0% { transform: translateY(0px) rotate(-5deg); }
+    50% { transform: translateY(-20px) rotate(5deg); }
+    100% { transform: translateY(0px) rotate(-5deg); }
+}
+
+/* Text glow animation for the 404 */
+@keyframes pulse-glow {
+    0% { text-shadow: 0 0 5px rgba(0, 198, 255, 0.3); }
+    50% { text-shadow: 0 0 20px rgba(0, 114, 255, 0.5); }
+    100% { text-shadow: 0 0 5px rgba(0, 198, 255, 0.3); }
+}
