@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7 Pairs Digital</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #1F2937; /* Dark Gray text for white bg */
+            background-color: #FFFFFF; /* White Background */
+            position: relative;
+            overflow-x: hidden; /* Prevent horizontal scroll from animation */
+            /* Hide scrollbar initially until password is entered */
+            overflow-y: hidden; 
+        }
+
+        /* --- Password Modal Styles --- */
+        #password-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.95); /* Dark Slate background */
+            z-index: 9999; /* Topmost layer */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            max-width: 90%;
+            width: 400px;
+            animation: modal-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes modal-pop {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        /* --- Site Alert Styles --- */
+        .site-alert {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 90%;
+            width: 500px;
+            background: #fff7c7;      /* pale yellow */
+            border: 2px solid #1f1f1f;  /* dark border */
+            color: #1f1f1f;    /* dark text */
+            padding: 12px 16px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            font-family: system-ui, -apple-system, sans-serif;
+            line-height: 1.4;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .site-alert.hidden-alert {
+            opacity: 0;
+            transform: translate(-50%, -20px);
+            pointer-events: none;
+        }
+
+        .site-alert__icon {
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            font-size: 20px;
+        }
+
+        .site-alert__content {
+            flex: 1 1 auto;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .site-alert__close {
+            background: transparent;
+            border: none;
+            color: #1f1f1f;
+            font-size: 18px;
+            line-height: 1;
+            padding: 4px;
+            cursor: pointer;
+            opacity: 0.6;
+        }
+        .site-alert__close:hover { opacity: 1; }
+
+        /* --- Birthday Animation Styles --- */
+        #celebration-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1; /* Above background, below interactive content */
+            pointer-events: none;
+        }
+
+        .birthday-message-overlay {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            text-align: center;
+            width: 100%;
+            max-width: 800px;
+            pointer-events: none; /* Allows clicking through to the site */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0; /* Hidden initially until password unlocked */
+            transition: opacity 1s ease-in;
+        }
+
+        .birthday-title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 4rem;
+            margin: 0;
+            display: inline-block;
+            line-height: 1.1;
+        }
+
+        /* Animated Letters */
+        .birthday-title span {
+            display: inline-block;
+            color: #FF1493; /* Start Color */
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            animation: bounce-text 2s ease-in-out infinite;
+            animation-delay: calc(0.1s * var(--i));
+        }
+
+        .birthday-subtitle {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.1rem;
+            color: #DB2777; /* Pink-600 */
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-top: 5px;
+            font-weight: 600;
+        }
+        
+        .health-wish {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.8rem;
+            color: #FF69B4; /* Hot Pink */
+            margin-top: 0.5rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            animation: float-text 3s ease-in-out infinite;
+        }
+
+        /* Image Styling */
+        .celebration-image {
+            width: 100%;
+            max-width: 350px;
+            height: auto;
+            margin-top: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            border: 4px solid rgba(255, 255, 255, 0.9);
+            transform: rotate(-2deg);
+            transition: transform 0.3s ease;
+            pointer-events: auto;
+        }
+        
+        .celebration-image:hover {
+            transform: rotate(0deg) scale(1.02);
+        }
+
+        @keyframes bounce-text {
+            0%, 100% {
+                transform: translateY(0);
+                color: #FF1493; /* Deep Pink */
+            }
+            50% {
+                transform: translateY(-15px);
+                color: #9333EA; /* Purple */
+                text-shadow: 0 10px 10px rgba(0,0,0,0.2);
+            }
+        }
+
+        @keyframes float-text {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* Music Button Styles */
+        .music-control {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(255, 105, 180, 0.1); /* Light pink tint */
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 105, 180, 0.4);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: none; /* Hidden initially */
+        }
+
+        .music-control:hover {
+            background: rgba(255, 105, 180, 0.2);
+            transform: scale(1.1);
+        }
+
+        .music-control svg {
+            width: 24px;
+            height: 24px;
+            fill: #FF1493; /* Deep Pink Icon */
+        }
+
+        .music-control.playing {
+            animation: spin-slow 4s linear infinite;
+            border-color: #FF1493;
+            box-shadow: 0 0 15px rgba(255, 20, 147, 0.3);
+        }
+
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Ensure main content sits above animation */
+        header, main, footer {
+            position: relative;
+            z-index: 10;
+            filter: blur(5px); /* Blurred initially */
+            transition: filter 0.5s ease;
+        }
+
+        /* Custom gradient for titles and elements */
+        .neon-text-gradient {
+            background: linear-gradient(90deg, #FF1493, #9333EA); /* Pink to Purple */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .neon-button-gradient {
+            background-image: linear-gradient(90deg, #FF1493, #9333EA); /* Pink to Purple */
+            color: white;
+        }
+
+        .card-bg-gradient {
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(229, 231, 235, 0.5); /* Light gray border */
+        }
+
+        /* Smooth scroll for navigation */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Fix for mobile menu visibility when Tailwind CSS is blocked */
+        #mobile-menu.hidden {
+            display: none !important;
+        }
+
+        /* Ensure main navigation is visible on desktop */
+        @media (min-width: 768px) {
+            #main-nav.hidden {
+                display: flex !important;
+            }
+        }
+
+        /* Responsive navigation fixes */
+        @media (max-width: 767px) {
+            #main-nav {
+                display: none !important;
+            }
+            .birthday-title { font-size: 2.5rem; }
+            .birthday-title span { animation-delay: 0s; }
+            .celebration-image { max-width: 280px; margin-top: 1rem; }
+            .site-alert { width: 95%; top: 10px; padding: 10px; }
+        }
+        
+        /* AI Search specific styles */
+        .ai-result {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .ai-card {
+            margin-bottom: 2rem;
+            position: relative;
+        }
+    </style>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7150683500942089"
+     crossorigin="anonymous"></script>
+</head>
+<body class="bg-white text-gray-800">
+
+    <!-- PASSWORD MODAL -->
+    <div id="password-modal">
+        <div class="modal-content">
+            <div class="mb-4 text-5xl">🔒</div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Access Required</h2>
+            <p class="text-gray-600 mb-4">Hint: What is your age?</p>
+            <input type="password" id="password-input" placeholder="Enter Password" class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-pink-500 text-center text-lg" autofocus>
+            <button id="submit-password" class="w-full bg-pink-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-pink-700 transition duration-200">Unlock Celebration</button>
+            <p id="error-message" class="text-red-500 mt-3 text-sm hidden">Incorrect password. Try again!</p>
+        </div>
+    </div>
+
+    <!-- Celebration Animation Canvas -->
+    <canvas id="celebration-canvas"></canvas>
+
+    <!-- Site Alert for Background Music (Hidden initially) -->
+    <div id="music-alert" class="site-alert hidden-alert" role="alert">
+        <span class="site-alert__icon">🔊</span>
+        <div class="site-alert__content">
+            This website contains a background song. <br> <strong>Keep Learning!</strong>
+        </div>
+        <button class="site-alert__close" aria-label="Close Alert" onclick="document.getElementById('music-alert').classList.add('hidden-alert')">×</button>
+    </div>
+
+    <!-- Celebration Message Overlay -->
+    <div class="birthday-message-overlay" id="celebration-content">
+        <!-- Animated Happy Birthday Title -->
+        <h1 class="birthday-title">
+            <span style="--i:1">H</span><span style="--i:2">a</span><span style="--i:3">p</span><span style="--i:4">p</span><span style="--i:5">y</span>
+            &nbsp;
+            <span style="--i:6">B</span><span style="--i:7">i</span><span style="--i:8">r</span><span style="--i:9">t</span><span style="--i:10">h</span><span style="--i:11">d</span><span style="--i:12">a</span><span style="--i:13">y</span><span style="--i:14">!</span>
+        </h1>
+        <p class="birthday-subtitle">Celebrating Life</p>
+        <p class="health-wish">Wishing You Perfect Health ❤️</p>
+        
+        <!-- World AIDS Day Image (Using the uploaded screenshot filename) -->
+        <img src="Screenshot_20251201-003140.Chrome.jpg" alt="World AIDS Day 1st December" class="celebration-image">
+    </div>
+
+    <!-- Background Image Layer -->
+    <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60%; max-width: 600px; z-index: 0; opacity: 0.1; pointer-events: none;">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/6/64/Red_Ribbon.svg" alt="Red Ribbon Background" style="width: 100%; height: auto;">
+    </div>
+
+    <!-- Audio Player (Hidden) -->
+    <audio id="bg-music" loop>
+        <source src="https://github.com/kanishk2007dev/kanishk/raw/refs/heads/main/Dhun%20Saiyaara%20128%20Kbps%20(1).mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <!-- Music Control Button -->
+    <div class="music-control" id="music-toggle" title="Play Music">
+        <!-- Play Icon -->
+        <svg id="play-icon" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z"/>
+        </svg>
+        <!-- Pause Icon (Hidden by default) -->
+        <svg id="pause-icon" viewBox="0 0 24 24" style="display: none;">
+            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+        </svg>
+    </div>
+
+    <header class="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-sm shadow-md border-b border-gray-200">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="#hero" class="flex items-center space-x-2 text-gray-800 hover:text-pink-600 transition-colors">
+                <!-- Using original logo SVG but adjusting gradient for light theme if needed, currently kept same -->
+                <svg width="40" height="40" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M40.9419 22.8427C44.7892 20.3705 49.363 19.3879 53.9575 20.0152C58.552 20.6425 62.9038 22.8596 66.4497 26.4055C69.9956 29.9514 72.2127 34.3032 72.84 38.8977C73.4673 43.4922 72.4847 48.066 70.0125 51.9133C67.5403 55.7606 64.0375 58.747 59.9079 60.362C55.7783 61.977 51.2721 62.1465 47.0759 60.8549C42.8797 59.5633 39.2312 56.8837 36.6346 53.2541C34.0379 49.6246 32.6105 45.1952 32.5539 40.6698C32.4974 36.1444 33.8273 31.6966 36.3113 28.1065C38.7952 24.5164 42.4578 21.9366 46.881 20.7301C51.3042 19.5236 56.1219 19.7894 60.5292 21.503" stroke="url(#paint0_linear_141_125)" stroke-width="12"/>
+                    <path d="M78.6186 97.1573C74.7713 99.6295 70.1975 100.612 65.603 99.9848C61.0085 99.3575 56.6567 97.1404 53.1108 93.5945C49.5649 90.0486 47.3478 85.6968 46.7205 81.1023C46.0932 76.5078 47.0758 71.934 49.548 68.0867C52.0202 64.2394 55.523 61.253 59.6526 59.638C63.7822 58.023 68.2884 57.8535 72.4846 59.1451C76.6808 60.4367 80.3293 63.1163 82.926 66.7859C85.5226 70.4554 86.9501 74.8848 87.0067 79.4102C87.0632 83.9356 85.7333 88.3834 83.2494 91.9935C80.7655 95.5836 77.1029 98.1634 72.6797 99.7699C68.2565 100.976 63.4388 100.711 59.0315 98.997" stroke="url(#paint1_linear_141_125)" stroke-width="12"/>
+                    <defs>
+                        <linearGradient id="paint0_linear_141_125" x1="40.9419" y1="22.8427" x2="72.84" y2="38.8977" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#00C6FF"/>
+                            <stop offset="1" stop-color="#0072FF"/>
+                        </linearGradient>
+                        <linearGradient id="paint1_linear_141_125" x1="78.6186" y1="97.1573" x2="46.7205" y2="81.1023" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#00C6FF"/>
+                            <stop offset="1" stop-color="#0072FF"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span class="text-xl font-bold tracking-wide text-gray-800">7 Pairs Digital</span>
+            </a>
+            
+            <button id="mobile-menu-button" class="md:hidden focus:outline-none text-gray-800 hover:text-pink-600 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                </svg>
+            </button>
+
+            <nav id="main-nav" class="hidden md:flex space-x-6 text-gray-600 font-medium">
+                <a href="#about" class="hover:text-pink-600 transition-colors">About</a>
+                <a href="#music" class="hover:text-pink-600 transition-colors">Music</a>
+                <a href="#podcasts" class="hover:text-pink-600 transition-colors">Podcasts</a>
+                <a href="#storytelling" class="hover:text-pink-600 transition-colors">Storytelling</a>
+                <a href="#contact" class="hover:text-pink-600 transition-colors">Contact</a>
+                <a href="#search" class="hover:text-pink-600 transition-colors">Search</a>
+                <a href="#sevenmail" class="hover:text-pink-600 transition-colors">7mail</a>
+            </nav>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden bg-white py-4 border-t border-gray-200 shadow-lg">
+            <nav class="flex flex-col items-center space-y-4 text-gray-600 font-medium">
+                <a href="#about" class="hover:text-pink-600 transition-colors">About</a>
+                <a href="#music" class="hover:text-pink-600 transition-colors">Music</a>
+                <a href="#podcasts" class="hover:text-pink-600 transition-colors">Podcasts</a>
+                <a href="#storytelling" class="hover:text-pink-600 transition-colors">Storytelling</a>
+                <a href="#contact" class="hover:text-pink-600 transition-colors">Contact</a>
+                <a href="#search" class="hover:text-pink-600 transition-colors">Search</a>
+                <a href="#sevenmail" class="hover:text-pink-600 transition-colors">7mail</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section id="hero" class="relative min-h-screen flex items-center justify-center text-center p-4">
+            <div class="z-10 max-w-4xl space-y-6">
+                 <div class="mb-8 p-4 bg-white/70 rounded-lg backdrop-blur-sm shadow-md border border-gray-200 flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-8">
+                    <div class="flex items-center space-x-2">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/2/22/Krop_Digital_Media_Entertainment_Corporation_%28KDEC%29_company_icon.svg" alt="Krop Digital Media Entertainment Corporation (KDEC) logo" class="h-16 w-auto">
+                    </div>
+                    <div class="text-sm font-light text-gray-600">
+                        <span class="font-bold text-gray-800">Krop Digital Media Entertainment Corporation</span> is now
+                        <span class="font-bold neon-text-gradient block sm:inline-block mt-2 sm:mt-0">7 Pairs Digital</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                         <svg width="40" height="40" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" class="scale-150">
+                            <path d="M40.9419 22.8427C44.7892 20.3705 49.363 19.3879 53.9575 20.0152C58.552 20.6425 62.9038 22.8596 66.4497 26.4055C69.9956 29.9514 72.2127 34.3032 72.84 38.8977C73.4673 43.4922 72.4847 48.066 70.0125 51.9133C67.5403 55.7606 64.0375 58.747 59.9079 60.362C55.7783 61.977 51.2721 62.1465 47.0759 60.8549C42.8797 59.5633 39.2312 56.8837 36.6346 53.2541C34.0379 49.6246 32.6105 45.1952 32.5539 40.6698C32.4974 36.1444 33.8273 31.6966 36.3113 28.1065C38.7952 24.5164 42.4578 21.9366 46.881 20.7301C51.3042 19.5236 56.1219 19.7894 60.5292 21.503" stroke="url(#paint0_linear_141_125)" stroke-width="12"/>
+                            <path d="M78.6186 97.1573C74.7713 99.6295 70.1975 100.612 65.603 99.9848C61.0085 99.3575 56.6567 97.1404 53.1108 93.5945C49.5649 90.0486 47.3478 85.6968 46.7205 81.1023C46.0932 76.5078 47.0758 71.934 49.548 68.0867C52.0202 64.2394 55.523 61.253 59.6526 59.638C63.7822 58.023 68.2884 57.8535 72.4846 59.1451C76.6808 60.4367 80.3293 63.1163 82.926 66.7859C85.5226 70.4554 86.9501 74.8848 87.0067 79.4102C87.0632 83.9356 85.7333 88.3834 83.2494 91.9935C80.7655 95.5836 77.1029 98.1634 72.6797 99.7699C68.2565 100.976 63.4388 100.711 59.0315 98.997" stroke="url(#paint1_linear_141_125)" stroke-width="12"/>
+                            <defs>
+                                <linearGradient id="paint0_linear_141_125" x1="40.9419" y1="22.8427" x2="72.84" y2="38.8977" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#00C6FF"/>
+                                    <stop offset="1" stop-color="#0072FF"/>
+                                </linearGradient>
+                                <linearGradient id="paint1_linear_141_125" x1="78.6186" y1="97.1573" x2="46.7205" y2="81.1023" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#00C6FF"/>
+                                    <stop offset="1" stop-color="#0072FF"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                </div>
+                <h1 class="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight leading-tight text-gray-800">
+                    <span class="neon-text-gradient">STORIES UNITE US, MUSIC MOVES US, INNOVATION PROPELS US.</span>
+                </h1>
+                <p class="text-lg sm:text-xl md:text-2xl text-gray-600 max-w-2xl mx-auto">
+                    Redefining digital entertainment through original music, captivating podcasts, and immersive storytelling.
+                    We are also working on launching an advanced Gemini AI-based search engine and a secure mail service called 7mail for India.
+                </p>
+                <div class="flex flex-col items-center mt-8">
+                    <p class="text-sm text-gray-500">Our Garena Free Fire UID</p>
+                    <div class="bg-purple-600 rounded-lg p-4 text-white font-semibold mt-2">
+                        Indian UID: 3167029778
+                    </div>
+                </div>
+                <a href="#featured" class="inline-block px-8 py-4 rounded-full font-semibold shadow-lg transition-transform transform hover:scale-105 neon-button-gradient mt-8">
+                    EXPLORE OUR WORK
+                </a>
+            </div>
+            <!-- Background blobs updated for light mode visibility -->
+            <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                <div class="absolute top-1/2 left-1/2 w-96 h-96 bg-pink-300 rounded-full opacity-20 blur-3xl -translate-x-1/2 -translate-y-1/2 animate-pulse"></div>
+                <div class="absolute bottom-1/4 right-1/4 w-72 h-72 bg-purple-300 rounded-full opacity-20 blur-3xl animate-pulse delay-500"></div>
+            </div>
+        </section>
+
+        <section id="disclaimer" class="container mx-auto px-4 py-8 md:py-12">
+            <div class="card-bg-gradient rounded-2xl p-6 shadow-xl border border-gray-200 text-center">
+                <h2 class="text-xl sm:text-2xl font-bold text-yellow-600 mb-2">Important Notice</h2>
+                <p class="text-lg font-semibold text-yellow-600 max-w-2xl mx-auto mb-4">
+                    This website is also available at its primary address: <a href="https://kdec.dpdns.org/" target="_blank" rel="noopener noreferrer" class="text-pink-600 hover:underline font-bold">https://kdec.dpdns.org/</a>
+                </p>
+                <p class="text-gray-600 max-w-2xl mx-auto">
+                    This is a temporary website created by Kanishk Mahawar. It is a work in progress and may be closed in the near future due to security or maintenance reasons.
+                    <br><br>
+                    In the future, the website may change its domain to one of the following: <strong>kdec.studio</strong>, <strong>kdec.live</strong>, <strong>kdec.rocks</strong>, <strong>kdec.ninja</strong>, <strong>kdec.games</strong>, <strong>kdec.codes</strong>, <strong>kdec.systems</strong>, <strong>kdec.email</strong>, <strong>kdec.works</strong>, <strong>kdec.software</strong>, <strong>kdec.engineer</strong>, <strong>kdec.app</strong>, or <strong>kdec.dev</strong>, <strong>kdec.page</strong>, or <strong>kdec.foo</strong>.
+                </p>
+            </div>
+        </section>
+
+        <section id="about" class="container mx-auto px-4 py-16 md:py-24">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="space-y-6">
+                    <h2 class="text-3xl sm:text-4xl font-bold neon-text-gradient">A Thoughtful Rebrand & Historical Foundation</h2>
+                    <p class="text-gray-600 leading-relaxed">
+                        Krop Digital Media Entertainment Corporation (KDEC), founded by Kanishk Mahawar in 2022, has been officially rebranded as 7 Pairs Digital. The company is headquartered in Dausa, Rajasthan, India and operates in the digital media and music sectors.
+                    </p>
+                    <p class="text-gray-600 leading-relaxed">
+                        Originally conceived to launch podcasts and web-based storytelling, the company quickly evolved—expanding into music production, digital content creation, and multi-platform narrative design. The rebrand not only reflects the company’s successful journey so far but also signals its next phase: an ambitious expansion into modern digital entertainment under a fresh and memorable name.
+                    </p>
+                </div>
+                <div class="relative w-full h-80 rounded-2xl overflow-hidden card-bg-gradient p-6 flex justify-center items-center">
+                    <div class="text-center space-y-4">
+                        <h3 class="text-xl font-semibold text-gray-800">Founder's Vision</h3>
+                        <p class="italic text-lg text-gray-600">
+                            “This is not just a name change—it’s a renewal of purpose and a reimagining of our future.”
+                        </p>
+                        <span class="text-sm text-gray-500">— Kanishk Mahawar</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="news" class="container mx-auto px-4 py-16 md:py-24">
+            <h2 class="text-3xl sm:text-4xl font-bold text-center mb-12 neon-text-gradient">Latest News & Updates</h2>
+            <div class="card-bg-gradient rounded-2xl p-8 shadow-xl">
+                <div class="flex flex-col md:flex-row items-center md:items-start md:space-x-6 space-y-6 md:space-y-0">
+                    <img src="https://images.crunchbase.com/image/upload/c_thumb,h_170,w_170,f_auto,g_face,z_0.7,b_white,q_auto:eco,dpr_1/ovev4dg9mfwc3xiasvmz" alt="Kanishk Mahawar, founder of KDEC" class="w-48 h-48 rounded-full object-cover border-4 border-pink-500 shadow-md flex-shrink-0">
+                    <div>
+                        <p class="text-gray-600 text-lg mb-6 leading-relaxed">
+                            <strong>Kanishk Mahawar</strong>, the creative force behind Krop Digital Media Entertainment Corporation (KDEC), continues to transform the digital entertainment space in India with groundbreaking content, innovative storytelling, and a powerful connection to audiences worldwide.
+                        </p>
+                        <p class="text-gray-600 mb-6 leading-relaxed">
+                            Founded on January 30, 2022, by Kanishk Mahawar, KDEC has rapidly emerged as a trailblazer in music, digital content, and podcasting, operating at the intersection of creativity and technology. Headquartered in Dausa, India, the company has gained recognition for producing emotionally resonant music, original video content, and thought-provoking podcasts that cater to a new generation of digital consumers.
+                        </p>
+                    </div>
+                </div>
+                
+                <h3 class="text-xl sm:text-2xl font-semibold text-pink-600 mb-4">A Powerhouse of Content Creation</h3>
+                <p class="text-gray-600 text-lg mb-6 leading-relaxed">
+                    At the core of KDEC’s vibrant digital presence is its YouTube channel — Krop Digital Media Entertainment Limited (@kropmedia) — which showcases an eclectic mix of videos, shorts, and podcast episodes. With standout productions like “63 Sad Song by Kanishk” and “Episode 25”, the channel continues to attract a diverse and loyal audience. These offerings reflect Kanishk's creative ethos: emotionally engaging, accessible, and innovative content that resonates across age groups and geographies.
+                        </p>
+                        <h3 class="text-xl sm:text-2xl font-semibold text-pink-600 mb-4">Melody Minute: A Digital Milestone</h3>
+                        <p class="text-gray-600 mb-6 leading-relaxed">
+                            One of Kanishk Mahawar’s most impactful contributions is his podcast series Melody Minute, formerly titled Listen the Songs with Kanishk Mahawar. The show, hosted under the KDEC banner, ran successfully for 93 episodes and concluded on May 29, 2025. Throughout its run, the podcast celebrated musical storytelling, offering listeners behind-the-scenes insights, lyrical breakdowns, and personal anecdotes from Kanishk himself. The show's success on platforms like JioSaavn cemented it as a staple in the Indian music podcast landscape.
+                        </p>
+                        <h3 class="text-xl sm:text-2xl font-semibold text-pink-600 mb-4">More Than a Founder: A Multi-Faceted Visionary</h3>
+                        <p class="text-gray-600 mb-6 leading-relaxed">
+                            Though Kanishk is no longer serving as CEO, he continues to steer KDEC’s creative direction as its founder, leveraging his multifaceted talents as a musician, digital creator, and podcast host. His passion for music shines through in original compositions like the acclaimed "Little Touch Better Monty Song", which has received wide appreciation for its vocals and production quality.
+                        </p>
+                        <p class="text-gray-600 mb-6 leading-relaxed">
+                            Kanishk also engages audiences through his second podcast, A Journey into Cinema, where he reflects on his creative journey and offers listeners a glimpse into the evolution of the entertainment industry. Though he is not currently active in film acting, his discussions in this space reflect a deep love for cinema and storytelling.
+                        </p>
+                        <h3 class="text-xl sm:text-2xl font-semibold text-pink-600 mb-4">Commitment to Growth and Innovation</h3>
+                        <p class="text-gray-600 mb-6 leading-relaxed">
+                            Demonstrating a commitment to lifelong learning, Kanishk Mahawar actively hones his skills at SMCS Podcast Services, where he explores the evolving tools and techniques in audio storytelling. His ability to balance creativity with strategy has been instrumental in building KDEC’s strong identity in India’s ever-changing entertainment sector.
+                        </p>
+                        <h3 class="text-xl sm:text-2xl font-semibold text-pink-600 mb-4">Looking Ahead</h3>
+                        <p class="text-gray-600 mb-6 leading-relaxed">
+                            As 2025 unfolds, Kanishk Mahawar continues to explore new formats and platforms for storytelling. With a loyal following, a successful content library, and a clear creative vision, he and KDEC are poised to set new benchmarks in digital entertainment — reaffirming their mission to push the boundaries of creativity and inspire the next wave of content creators.
+                        </p>
+                        <div class="mt-8">
+                            <h4 class="text-lg font-semibold text-gray-700 mb-2">Sources:</h4>
+                            <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
+                                <li><a href="https://m.imdb.com/name/nm15370217/" class="text-pink-600 hover:underline" target="_blank" rel="noopener noreferrer">IMDb - Kanishk Mahawar</a></li>
+                                <li><a href="https://www.wate.com/business/press-releases/ein-presswire/709513428/krop-digital-media-entertainment-corporation-kdec-revolutionizing-digital-entertainment/" class="text-pink-600 hover:underline" target="_blank" rel="noopener noreferrer">wate.com - KDEC Press Release</a></li>
+                                <li><a href="https://www.openpr.com/news/4053051/kanishk-mahawar-emerges-as-a-rising-force-in-india-s-digital" class="text-pink-600 hover:underline" target="_blank" rel="noopener noreferrer">openpr.com - Kanishk Mahawar News</a></li>
+                                <li><a href="https://kalkinemedia.com/news/world-news/krop-digital-media-entertainment-corporation-kdec-revolutionizing-digital-entertainment" class="text-pink-600 hover:underline" target="_blank" rel="noopener noreferrer">kalkinemedia.com - KDEC News</a></li>
+                                <li><a href="https://www.issuewire.com/kanishk-mahawar-expands-digital-horizons-through-kdecs-growing-legacy-in-indian-entertainment-1798391113504787" class="text-pink-600 hover:underline" target="_blank" rel="noopener noreferrer">issuewire.com - Kanishk Mahawar News</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="featured" class="container mx-auto px-4 py-16 md:py-24">
+                    <h2 class="text-3xl sm:text-4xl font-bold text-center mb-12 neon-text-gradient">Our Core Pillars</h2>
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <div class="card-bg-gradient rounded-2xl p-8 flex flex-col items-center text-center shadow-lg transition-transform transform hover:scale-105">
+                            <h3 class="text-2xl font-semibold mb-4 text-pink-600">Original Music Production</h3>
+                            <p class="text-gray-600 mb-6">
+                                From a solo debut to much-anticipated new releases, we craft music that tells a story and connects with listeners.
+                            </p>
+                            <ul class="text-sm text-gray-600 list-disc list-inside space-y-1 text-left">
+                                <li>Released: "Little Touch Better Monty"</li>
+                                <li>Upcoming: "Tune Mujhe Jo… Lajab Tha" (2025)</li>
+                            </ul>
+                            <a href="#music" class="mt-auto inline-block px-6 py-3 rounded-full font-semibold text-sm transition-transform transform hover:scale-105 neon-button-gradient mt-8">
+                                Explore Music
+                            </a>
+                        </div>
+                        <div class="card-bg-gradient rounded-2xl p-8 flex flex-col items-center text-center shadow-lg transition-transform transform hover:scale-105">
+                            <h3 class="text-2xl font-semibold mb-4 text-pink-600">Engaging Audio Content</h3>
+                            <p class="text-gray-600 mb-6">
+                                We produce podcasts that delve into the world of creative expression and cinematic arts.
+                            </p>
+                            <ul class="text-sm text-gray-600 list-disc list-inside space-y-1 text-left">
+                                <li>Series: "Listen the songs with Me (K. Mahawar)"</li>
+                                <li>Newly Announced: "A Journey into Cinema" (2025+)</li>
+                            </ul>
+                            <p class="text-sm mt-4 text-center">
+                                <span class="text-gray-600">Listen now on:</span>
+                                <div class="flex justify-center space-x-4 mt-2 text-gray-700">
+                                    <a href="https://podcasts.apple.com/in/podcast/melody-minutes/id1633868925" target="_blank" rel="noopener noreferrer" aria-label="Apple Podcasts" class="hover:text-pink-600 transition-colors">
+                                        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1.5 13.5v-7l6 3.5-6 3.5z"/>
+                                        </svg>
+                                    </a>
+                                    <a href="https://open.spotify.com/show/4fBPfmugRC1RbnvyeksIRG" target="_blank" rel="noopener noreferrer" aria-label="Spotify" class="hover:text-pink-600 transition-colors">
+                                        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1.5 15.75c-.14.25-.45.33-.74.19-1.28-.68-2.83-1.04-4.51-1.04-1.68 0-3.23.36-4.51 1.04-.29.14-.6.06-.74-.19-.14-.25-.06-.56.19-.74 1.48-.79 3.2-1.2 5.06-1.2s3.58.41 5.06 1.2c.25.18.33.49.19.74zm1.96-3.88c-.2.35-.64.47-1.02.26-1.46-.78-3.2-1.18-5.04-1.18-1.84 0-3.58.4-5.04 1.18-.38.21-.82.09-1.02-.26-.2-.35-.09-.79.26-1.02 1.84-.98 3.82-1.48 5.79-1.48s3.95.5 5.79 1.48c.35.23.46.67.26 1.02zm-3.32-3.85c-.32.32-.86.32-1.18 0-1.88-1.87-4.14-2.82-6.84-2.82-2.7 0-4.96.95-6.84 2.82-.32.32-.86.32-1.18 0-.32-.32-.32-.86 0-1.18C4.54 4.54 7.95 3 12 3s7.46 1.54 9.17 3.28c.32.32.32.86 0 1.18z"/>
+                                        </svg>
+                                    </a>
+                                    <a href="https://music.amazon.in/podcasts/a9c8f573-53d8-47d8-8677-cfd977290c58/kanishk-mahawar" target="_blank" rel="noopener noreferrer" aria-label="Amazon Music" class="hover:text-pink-600 transition-colors">
+                                        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2zm1 15h2v-9h-2v9zm-3 0h2v-9h-2v9z"/>
+                                        </svg>
+                                    </a>
+                                    <a href="https://podnews.net/podcast/ia42f" target="_blank" rel="noopener noreferrer" aria-label="Podnews" class="hover:text-pink-600 transition-colors">
+                                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2zm-3 15h2V8H9v9zm4 0h2V8h-2v9z"/>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="search" class="container mx-auto px-4 py-16 md:py-24">
+                    <h2 class="text-3xl sm:text-4xl font-bold text-center mb-4 neon-text-gradient">Kanishk Search AI</h2>
+                    <p class="text-center text-gray-600 mb-8">This is a demo of our upcoming advanced search engine. It is planned to be a Gemini AI-based search engine, designed specifically for the Indian market, providing both AI-powered summaries and classic search results. This engine use gemini 2.5 flash API.</p>
+                    <div class="max-w-4xl mx-auto space-y-8">
+                        <script async src="https://cse.google.com/cse.js?cx=62ab31f1e51134ad5"></script>
+                        <div class="gcse-search"></div>
+                    </div>
+                </section>
+
+                <section id="contact" class="container mx-auto px-4 py-16 md:py-24 text-center">
+                    <h2 class="text-3xl sm:text-4xl font-bold neon-text-gradient">Connect with Us</h2>
+                    <p class="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+                        For more details, updates, or collaboration queries, reach out to us.
+                    </p>
+                    <div class="card-bg-gradient p-8 rounded-2xl max-w-lg mx-auto shadow-lg">
+                        <p class="text-lg text-gray-800 mb-6">
+                            Main Email: <span class="text-green-600">Kanishkdevatwal@yahoo.com</span>
+                        </p>
+                        <p class="text-sm text-gray-600 mb-6">
+                            Other Emails: <a href="mailto:kanishkdevatwal@outlook.in, kanishk0x0x@gmail.com" class="text-pink-600 hover:text-pink-500">kanishkdevatwal@outlook.in, kanishk0x0x@gmail.com</a>
+                        </p>
+                        <div class="space-y-4 mt-6">
+                            <p class="text-lg text-gray-800">Garena Free Fire UIDs</p>
+                            <div class="bg-purple-600 rounded-lg p-4 text-white font-semibold">
+                                Indian UID: 3167029778
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                                    <p class="text-sm font-light text-gray-500">Brazil</p>
+                                    <p class="font-semibold text-gray-800">12035698293</p>
+                                </div>
+                                <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                                    <p class="text-sm font-light text-gray-500">Russia</p>
+                                    <p class="font-semibold text-gray-800">11994829071</p>
+                                </div>
+                                <div class="bg-white rounded-lg p-4 sm:col-span-2 shadow-sm border border-gray-200">
+                                    <p class="text-sm font-light text-gray-500">Taiwan</p>
+                                    <p class="font-semibold text-gray-800">12086491625</p>
+                                </div>
+                            </div>
+                        </div> <!-- Closed missing div -->
+                    </div>
+                </section>
+
+                <section id="sevenmail" class="container mx-auto px-4 py-16 md:py-24 text-center">
+                    <h2 class="text-3xl sm:text-4xl font-bold neon-text-gradient">Create Your 7mail Account</h2>
+                    <p class="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+                        Like Google's Gmail, 7mail is an upcoming email service that will be a testament to our vision for a secure, user-friendly platform. It will feature a complex backend infrastructure with mail servers, secure protocols (like IMAP/SMTP with SSL/TLS), and robust user databases. This is a demonstration of what is to come.
+                    </p>
+                    <div class="card-bg-gradient rounded-xl p-4 shadow-md max-w-2xl mx-auto mb-8 border border-red-200">
+                        <div class="flex items-center justify-center space-x-4">
+                            <p class="text-red-500 font-semibold mb-2">Important Security Update:</p>
+                        </div>
+                        <p class="text-gray-600 mt-2">
+                            We apologize that the 7mail Account service is not currently active due to security reasons. 
+                            As an alternative, you can use <a href="https://www.zoho.com/mail/" target="_blank" rel="noopener noreferrer" class="text-pink-600 hover:underline font-bold flex items-center justify-center space-x-2">
+                                <span>ZOHO Mail</span>
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/3/30/ZOHO_logo_2023.svg" alt="ZOHO Mail Logo" class="h-6 w-auto">
+                            </a>, an Indian company.
+                        </p>
+                    </div>
+                    </section>
+                
+                <section id="logos" class="container mx-auto px-4 py-16 md:py-24">
+                    <h2 class="text-3xl sm:text-4xl font-bold text-center mb-12 neon-text-gradient">Our Commitment to Digital India</h2>
+                    <div class="flex flex-col sm:flex-row items-center justify-center space-y-8 sm:space-y-0 sm:space-x-12">
+                        <div class="flex flex-col items-center text-center">
+                            <img src="https://upload.wikimedia.org/wikipedia/en/9/95/Digital_India_logo.svg" alt="Digital India Logo" class="h-24 w-auto">
+                            <p class="mt-4 text-sm text-gray-500">Digital India</p>
+                        </div>
+                        <div class="flex flex-col items-center text-center">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/1/12/NIC_logo.svg" alt="NIC Logo" class="h-24 w-auto">
+                            <p class="mt-4 text-sm text-gray-500">National Informatics Centre</p>
+                        </div>
+                    </div>
+                </section>
+                </main>
+
+            <footer class="bg-gray-100 py-8 mt-16 border-t border-gray-200">
+                <div class="container mx-auto px-4 text-center text-sm text-gray-500">
+                    <p>© 2025 7 Pairs Digital. All rights reserved and Krop Digital Media Entertainment Ltd.</p>
+                    <p class="mt-2">KDEC official Website powered by GithHub</p>
+                    <div class="mt-4 flex justify-center space-x-4">
+                        <a href="https://www.instagram.com/kanishkdevatwal" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="hover:text-pink-600 transition-colors">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM12 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                            </svg>
+                        </a>
+                        <a href="https://twitter.com/kanishkdevatwal" target="_blank" rel="noopener noreferrer" aria-label="X" class="hover:text-pink-600 transition-colors">
+                            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/>
+                            </svg>
+                        </a>
+                        <a href="https://www.facebook.com/kanishkdevatwal" target="_blank" rel="noopener noreferrer" aria-label="Facebook" class="hover:text-pink-600 transition-colors">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            </svg>
+                        </a>
+                        <a href="https://www.youtube.com/@melodyminutes-rss" target="_blank" rel="noopener noreferrer" aria-label="YouTube" class="hover:text-pink-600 transition-colors">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </footer>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const mobileMenuButton = document.getElementById('mobile-menu-button');
+                    const mobileMenu = document.getElementById('mobile-menu');
+                    const mainNavLinks = document.querySelectorAll('#main-nav a');
+                    const mobileNavLinks = document.querySelectorAll('#mobile-menu a');
+                    
+                    // --- Event Listeners ---
+                    
+                    // Toggle mobile menu visibility
+                    mobileMenuButton.addEventListener('click', () => {
+                        mobileMenu.classList.toggle('hidden');
+                    });
+
+                    // Smooth scroll for navigation links
+                    function setupSmoothScroll(links) {
+                        links.forEach(link => {
+                            link.addEventListener('click', (e) => {
+                                e.preventDefault();
+                                const targetId = link.getAttribute('href');
+                                const targetElement = document.querySelector(targetId);
+                                if (targetElement) {
+                                    window.scrollTo({
+                                        top: targetElement.offsetTop,
+                                        behavior: 'smooth'
+                                    });
+                                }
+                                // Close mobile menu after clicking a link
+                                if (!mobileMenu.classList.contains('hidden')) {
+                                    mobileMenu.classList.add('hidden');
+                                }
+                            });
+                        });
+                    }
+
+                    setupSmoothScroll(mainNavLinks);
+                    setupSmoothScroll(mobileNavLinks);
+
+                    // --- AUDIO PLAYER SCRIPT (Auto-Unlock on Interaction) ---
+                    const audio = document.getElementById('bg-music');
+                    const musicToggle = document.getElementById('music-toggle');
+                    const playIcon = document.getElementById('play-icon');
+                    const pauseIcon = document.getElementById('pause-icon');
+                    const musicAlert = document.getElementById('music-alert');
+
+                    let isPlaying = false;
+
+                    // 1. Try playing immediately (might fail due to browser policy)
+                    audio.play().then(() => {
+                        isPlaying = true;
+                        updateIconState();
+                    }).catch(() => {
+                        console.log("Autoplay blocked. Waiting for interaction.");
+                    });
+
+                    // 2. Add one-time listener to unlock audio on first interaction
+                    function unlockAudio() {
+                        if (!isPlaying) {
+                            audio.play().then(() => {
+                                isPlaying = true;
+                                updateIconState();
+                                // Hide the alert once music starts
+                                if (musicAlert) musicAlert.classList.add('hidden-alert');
+                                
+                                // Remove listeners once successful
+                                document.removeEventListener('click', unlockAudio);
+                                document.removeEventListener('scroll', unlockAudio);
+                                document.removeEventListener('keydown', unlockAudio);
+                            }).catch(err => console.log("Still waiting for interaction..."));
+                        }
+                    }
+
+                    document.addEventListener('click', unlockAudio);
+                    document.addEventListener('scroll', unlockAudio);
+                    document.addEventListener('keydown', unlockAudio);
+
+                    function updateIconState() {
+                        if (isPlaying) {
+                            playIcon.style.display = 'none';
+                            pauseIcon.style.display = 'block';
+                            musicToggle.classList.add('playing');
+                        } else {
+                            playIcon.style.display = 'block';
+                            pauseIcon.style.display = 'none';
+                            musicToggle.classList.remove('playing');
+                        }
+                    }
+
+                    function toggleMusic(e) {
+                        // Prevent this click from triggering unlockAudio again if it bubbles up
+                        e.stopPropagation(); 
+                        
+                        if (isPlaying) {
+                            audio.pause();
+                            isPlaying = false;
+                        } else {
+                            audio.play();
+                            isPlaying = true;
+                        }
+                        updateIconState();
+                    }
+
+                    musicToggle.addEventListener('click', toggleMusic);
+
+                    // --- BIRTHDAY ANIMATION SCRIPT ---
+                    const canvas = document.getElementById('celebration-canvas');
+                    const ctx = canvas.getContext('2d');
+                    let width, height;
+                    let particles = [];
+                    let ribbons = [];
+                    let hearts = [];
+
+                    // Resize Canvas
+                    function resize() {
+                        width = canvas.width = window.innerWidth;
+                        height = canvas.height = window.innerHeight;
+                    }
+                    window.addEventListener('resize', resize);
+                    resize();
+
+                    // --- PARTICLE SYSTEM (Confetti) ---
+                    class Particle {
+                        constructor() {
+                            this.reset(true);
+                        }
+
+                        reset(initial = false) {
+                            this.x = Math.random() * width;
+                            this.y = initial ? Math.random() * height : -20;
+                            this.size = Math.random() * 8 + 4;
+                            this.speedY = Math.random() * 2 + 1;
+                            this.speedX = (Math.random() - 0.5) * 1.5;
+                            this.rotation = Math.random() * 360;
+                            this.rotationSpeed = (Math.random() - 0.5) * 5;
+                            
+                            // Vibrant Birthday Colors + Red accents
+                            const colors = ['#FFD700', '#FF0000', '#FF69B4', '#00C6FF', '#32CD32'];
+                            this.color = colors[Math.floor(Math.random() * colors.length)];
+                            this.type = Math.random() > 0.5 ? 'circle' : 'rect';
+                        }
+
+                        update() {
+                            this.y += this.speedY;
+                            this.x += this.speedX;
+                            this.rotation += this.rotationSpeed;
+
+                            if (this.y > height + 20) {
+                                this.reset();
+                            }
+                        }
+
+                        draw() {
+                            ctx.save();
+                            ctx.translate(this.x, this.y);
+                            ctx.rotate((this.rotation * Math.PI) / 180);
+                            ctx.fillStyle = this.color;
+
+                            if (this.type === 'rect') {
+                                ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+                            } else {
+                                ctx.beginPath();
+                                ctx.arc(0, 0, this.size / 2, 0, Math.PI * 2);
+                                ctx.fill();
+                            }
+                            ctx.restore();
+                        }
+                    }
+
+                    // --- RIBBON SYSTEM (World AIDS Day Theme) ---
+                    class Ribbon {
+                        constructor() {
+                            this.reset(true);
+                        }
+
+                        reset(initial = false) {
+                            this.x = Math.random() * width;
+                            this.y = initial ? Math.random() * height : height + 50; 
+                            this.speedY = (Math.random() * 0.5 + 0.2) * -1; // Float UP
+                            this.scale = Math.random() * 0.6 + 0.4;
+                            this.sway = Math.random() * 0.02;
+                            this.swayOffset = Math.random() * Math.PI * 2;
+                            this.opacity = Math.random() * 0.4 + 0.2; 
+                        }
+
+                        update() {
+                            this.y += this.speedY;
+                            this.swayOffset += this.sway;
+                            this.x += Math.sin(this.swayOffset) * 0.8;
+
+                            if (this.y < -60) {
+                                this.y = height + 60;
+                                this.x = Math.random() * width;
+                            }
+                        }
+
+                        draw() {
+                            ctx.save();
+                            ctx.translate(this.x, this.y);
+                            ctx.scale(this.scale, this.scale);
+                            ctx.globalAlpha = this.opacity;
+                            
+                            ctx.beginPath();
+                            ctx.strokeStyle = '#ff0000'; // Pure Red
+                            ctx.lineWidth = 10;
+                            ctx.lineCap = 'round';
+                            ctx.lineJoin = 'round';
+                            
+                            // Classic Red Ribbon Shape
+                            ctx.moveTo(-10, 20);
+                            ctx.bezierCurveTo(-10, -20, 10, -20, 10, 20); 
+                            ctx.lineTo(-15, 40); 
+                            ctx.moveTo(10, 20);
+                            ctx.lineTo(15, 40); 
+                            
+                            ctx.shadowBlur = 15;
+                            ctx.shadowColor = '#cc0000';
+                            
+                            ctx.stroke();
+                            ctx.restore();
+                        }
+                    }
+
+                    // --- HEART SYSTEM (White, Pink & Light Pink Theme) ---
+                    class Heart {
+                        constructor() {
+                            this.reset(true);
+                        }
+
+                        reset(initial = false) {
+                            this.x = Math.random() * width;
+                            this.y = initial ? Math.random() * height : height + 20;
+                            this.size = Math.random() * 15 + 10; // 10-25px size
+                            this.speedY = (Math.random() * 1 + 0.5) * -1; // Float up like balloons
+                            this.sway = Math.random() * 0.02;
+                            this.swayOffset = Math.random() * Math.PI * 2;
+                            
+                            // Randomly choose White, Pink, or Light Pink
+                            const rand = Math.random();
+                            if (rand < 0.33) {
+                                this.color = '#FFFFFF'; // White
+                            } else if (rand < 0.66) {
+                                this.color = '#FF69B4'; // Hot Pink
+                            } else {
+                                this.color = '#FFB6C1'; // Light Pink
+                            }
+                            
+                            // Also allow for black hearts per request
+                            if (Math.random() < 0.2) {
+                                this.color = '#000000';
+                            }
+
+                            this.opacity = Math.random() * 0.5 + 0.3;
+                        }
+
+                        update() {
+                            this.y += this.speedY;
+                            this.swayOffset += this.sway;
+                            this.x += Math.sin(this.swayOffset) * 0.5;
+
+                            if (this.y < -50) {
+                                this.reset();
+                            }
+                        }
+
+                        draw() {
+                            ctx.save();
+                            ctx.translate(this.x, this.y);
+                            // Scale the heart drawing
+                            ctx.scale(this.size / 20, this.size / 20); 
+                            ctx.globalAlpha = this.opacity;
+                            ctx.fillStyle = this.color;
+                            
+                            ctx.beginPath();
+                            // Standard Heart Shape using bezier curves
+                            ctx.moveTo(0, 0);
+                            ctx.bezierCurveTo(-10, -10, -20, 5, 0, 25);
+                            ctx.bezierCurveTo(20, 5, 10, -10, 0, 0);
+                            ctx.fill();
+                            
+                            // If it's a white heart on a light background, give it a subtle pink outline
+                            if (this.color === '#FFFFFF') {
+                                ctx.strokeStyle = '#FFB6C1'; // Light Pink outline
+                                ctx.lineWidth = 1.5;
+                                ctx.stroke();
+                            }
+                             // If it's a black heart on a dark background, add a subtle white outline
+                            if (this.color === '#000000') {
+                                ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                                ctx.lineWidth = 2;
+                                ctx.stroke();
+                            }
+
+                            ctx.restore();
+                        }
+                    }
+
+                    function initAnimation() {
+                        // Create Confetti
+                        for (let i = 0; i < 80; i++) {
+                            particles.push(new Particle());
+                        }
+                        // Create World AIDS Day Ribbons
+                        for (let i = 0; i < 8; i++) {
+                            ribbons.push(new Ribbon());
+                        }
+                        // Create Birthday Hearts
+                        for (let i = 0; i < 25; i++) { // Increased count slightly
+                            hearts.push(new Heart());
+                        }
+                    }
+
+                    function animate() {
+                        ctx.clearRect(0, 0, width, height);
+
+                        // Note: We are NOT clearing the background color here so the CSS gradient shows through
+                        
+                        ribbons.forEach(r => {
+                            r.update();
+                            r.draw();
+                        });
+
+                        hearts.forEach(h => {
+                            h.update();
+                            h.draw();
+                        });
+
+                        particles.forEach(p => {
+                            p.update();
+                            p.draw();
+                        });
+
+                        requestAnimationFrame(animate);
+                    }
+
+                    initAnimation();
+                    animate();
+                });
+            </script>
+        </body>
+        </html>
