@@ -84,7 +84,7 @@
                         }
                         return;
                     }
-                    return new Promise(() => {}); 
+                    return new Promise(() => {}); // Intentionally never resolves to hold the lock while tab is open
                 });
             } catch (err) {
                 console.error("Single Window System Error:", err);
