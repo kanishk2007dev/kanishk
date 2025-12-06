@@ -39,9 +39,52 @@
         .background-logo {
             @apply absolute inset-0 m-auto w-1/2 h-1/2 max-w-xs max-h-xs object-contain opacity-10 pointer-events-none;
         }
+        /* National Single Window System Styles */
+        #single-window-blocker.hidden { display: none !important; }
+        #single-window-blocker.flex { display: flex !important; }
     </style>
 </head>
 <body class="animated-bg text-gray-800">
+
+    <!-- Single Window Blocker UI (National Single Window System) -->
+    <div id="single-window-blocker" class="hidden fixed inset-0 bg-[#0B1120] z-[9999] flex-col items-center justify-center text-center p-8">
+        
+        <!-- National Single Window System Logo -->
+        <div class="flex flex-col md:flex-row items-center justify-center mb-8 gap-4">
+            <div class="relative w-20 h-16">
+                <svg viewBox="0 0 100 80" class="w-full h-full drop-shadow-md">
+                    <path d="M25 20 H 75 Q 85 20 85 30 V 40 Q 85 50 75 50 H 25 Q 15 50 15 60 V 70" 
+                          fill="none" stroke="white" stroke-width="8" stroke-linecap="round" />
+                    <circle cx="20" cy="15" r="8" fill="#F59E0B" />
+                    <circle cx="25" cy="70" r="8" fill="#84CC16" />
+                </svg>
+            </div>
+            <div class="text-left border-l-2 border-slate-600 pl-4">
+                <h1 class="text-2xl md:text-3xl font-bold text-white leading-tight tracking-tight">
+                    National Single<br>Window System
+                </h1>
+            </div>
+        </div>
+
+        <h2 class="text-xl md:text-2xl font-semibold text-cyan-400 mb-6 uppercase tracking-widest">Portal Active in Another Tab</h2>
+        
+        <div class="max-w-2xl text-gray-300 mb-10 space-y-4 text-base md:text-lg leading-relaxed bg-slate-800/50 p-8 rounded-2xl border border-slate-700/50 backdrop-blur-sm shadow-2xl">
+            <p>
+                This website utilizes the <strong>National Single Window System</strong> architecture to serve as a unified, secure entry point for all 7 Pairs Digital services and government integrations.
+            </p>
+            <div class="h-px bg-slate-700/50 w-full my-4"></div>
+            <p class="text-sm md:text-base text-gray-400">
+                To ensure <strong>data integrity</strong>, high-level <strong>security</strong>, and optimal resource management for AI & Hardware modules, only <span class="text-white font-semibold">one active session</span> is permitted at a time.
+            </p>
+        </div>
+
+        <button onclick="window.close()" class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-all shadow-lg hover:shadow-blue-500/20 font-semibold flex items-center gap-2 transform hover:scale-105">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            Close This Tab
+        </button>
+        <p class="text-xs text-gray-600 mt-8">Please switch to your existing active tab to continue.</p>
+    </div>
+
 
     <div class="container mx-auto p-4 md:p-8 max-w-4xl">
         <header class="text-center mb-8">
@@ -276,6 +319,35 @@
         }
 
         authenticate();
+    </script>
+    
+    <!-- Single Window System Logic -->
+    <script>
+        async function initSingleWindow() {
+            if (!navigator.locks) {
+                console.warn("Web Locks API not supported in this browser.");
+                return;
+            }
+            const lockName = 'kanishk_global_lock';
+            try {
+                await navigator.locks.request(lockName, { ifAvailable: true }, async (lock) => {
+                    if (!lock) {
+                        const blocker = document.getElementById('single-window-blocker');
+                        if (blocker) {
+                            blocker.classList.remove('hidden');
+                            blocker.classList.add('flex');
+                            document.body.style.overflow = 'hidden';
+                            document.title = "🚫 Tab Blocked";
+                        }
+                        return;
+                    }
+                    return new Promise(() => {}); // Intentionally never resolves to hold the lock while tab is open
+                });
+            } catch (err) {
+                console.error("Single Window System Error:", err);
+            }
+        }
+        initSingleWindow();
     </script>
 </body>
 </html>

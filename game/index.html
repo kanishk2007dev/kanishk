@@ -4,8 +4,53 @@
     <meta charset="UTF-8">
     <title>Dino Dash: The Level Rush</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* National Single Window System Styles */
+        #single-window-blocker { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        #single-window-blocker.hidden { display: none !important; }
+        #single-window-blocker.flex { display: flex !important; }
+    </style>
 </head>
 <body>
+    <!-- Single Window Blocker UI (National Single Window System) -->
+    <div id="single-window-blocker" class="hidden" style="position: fixed; inset: 0; background-color: #0B1120; z-index: 9999; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 2rem;">
+        
+        <!-- National Single Window System Logo -->
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 2rem; gap: 1rem;">
+            <div style="position: relative; width: 80px; height: 64px;">
+                <svg viewBox="0 0 100 80" style="width: 100%; height: 100%; filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));">
+                    <path d="M25 20 H 75 Q 85 20 85 30 V 40 Q 85 50 75 50 H 25 Q 15 50 15 60 V 70" 
+                          fill="none" stroke="white" stroke-width="8" stroke-linecap="round" />
+                    <circle cx="20" cy="15" r="8" fill="#F59E0B" />
+                    <circle cx="25" cy="70" r="8" fill="#84CC16" />
+                </svg>
+            </div>
+            <div style="text-align: left; border-left: 2px solid #475569; padding-left: 1rem;">
+                <h1 style="font-size: 1.5rem; font-weight: bold; color: white; line-height: 1.2; margin: 0;">
+                    National Single<br>Window System
+                </h1>
+            </div>
+        </div>
+
+        <h2 style="font-size: 1.25rem; font-weight: 600; color: #22D3EE; margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.1em;">Portal Active in Another Tab</h2>
+        
+        <div style="max-width: 42rem; color: #D1D5DB; margin-bottom: 2.5rem; font-size: 1rem; line-height: 1.75; background-color: rgba(30, 41, 59, 0.5); padding: 2rem; border-radius: 1rem; border: 1px solid rgba(71, 85, 105, 0.5); backdrop-filter: blur(10px);">
+            <p>
+                This website utilizes the <strong>National Single Window System</strong> architecture to serve as a unified, secure entry point for all 7 Pairs Digital services and government integrations.
+            </p>
+            <div style="height: 1px; background-color: rgba(71, 85, 105, 0.5); width: 100%; margin: 1rem 0;"></div>
+            <p style="font-size: 0.875rem; color: #9CA3AF;">
+                To ensure <strong>data integrity</strong>, high-level <strong>security</strong>, and optimal resource management for AI & Hardware modules, only <span style="color: white; font-weight: 600;">one active session</span> is permitted at a time.
+            </p>
+        </div>
+
+        <button onclick="window.close()" style="padding: 0.75rem 2rem; background-color: #2563EB; color: white; border-radius: 9999px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); font-weight: 600; display: flex; align-items: center; gap: 0.5rem; border: none; cursor: pointer; transition: all 0.3s;">
+            <svg style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            Close This Tab
+        </button>
+        <p style="font-size: 0.75rem; color: #4B5563; margin-top: 2rem;">Please switch to your existing active tab to continue.</p>
+    </div>
+
     <div id="game-container">
         <div id="dino"></div>
         <div id="obstacle-area"></div>
@@ -18,5 +63,34 @@
     </div>
 
     <script src="script.js"></script>
+    
+    <!-- Single Window System Logic -->
+    <script>
+        async function initSingleWindow() {
+            if (!navigator.locks) {
+                console.warn("Web Locks API not supported in this browser.");
+                return;
+            }
+            const lockName = 'kanishk_global_lock';
+            try {
+                await navigator.locks.request(lockName, { ifAvailable: true }, async (lock) => {
+                    if (!lock) {
+                        const blocker = document.getElementById('single-window-blocker');
+                        if (blocker) {
+                            blocker.classList.remove('hidden');
+                            blocker.classList.add('flex');
+                            document.body.style.overflow = 'hidden';
+                            document.title = "🚫 Tab Blocked";
+                        }
+                        return;
+                    }
+                    return new Promise(() => {}); // Intentionally never resolves to hold the lock while tab is open
+                });
+            } catch (err) {
+                console.error("Single Window System Error:", err);
+            }
+        }
+        initSingleWindow();
+    </script>
 </body>
 </html>
