@@ -3,31 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Error - Page Not Found</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="error-style.css">
+    <title>Digital Rain | 7 Pairs Digital</title>
+    <!-- KDEC Favicon -->
+    <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/kanishk2007dev/kanishk/refs/heads/main/test/KDEC%20NEW%20LOGO.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        
+        #rain-canvas {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        /* Content Overlay (Optional) */
+        .content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 2rem;
+            border-radius: 10px;
+            border: 1px solid #00FFFF;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+            backdrop-filter: blur(5px);
+        }
+
+        .title {
+            color: #fff;
+            font-size: 3rem;
+            font-weight: bold;
+            text-shadow: 0 0 10px #00FFFF;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #00FFFF;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+        }
+
+        /* NSWS Blocker Styles */
+        #single-window-blocker {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: #0B1120;
+            z-index: 10000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            color: white;
+            font-family: sans-serif;
+        }
+    </style>
 </head>
 <body>
-    <div class="error-container">
-        <div class="animation-container">
-            <div class="person">
-                <div class="person-body"></div>
-                <div class="person-head">
-                    <div class="person-visor"></div>
-                </div>
-                <div class="person-backpack"></div>
+
+    <!-- Single Window Blocker UI (NSWS Style) -->
+    <div id="single-window-blocker">
+        <div class="flex flex-col md:flex-row items-center justify-center mb-8 gap-4">
+            <div class="relative w-20 h-16">
+                <svg viewBox="0 0 100 80" class="w-full h-full drop-shadow-md">
+                    <path d="M25 20 H 75 Q 85 20 85 30 V 40 Q 85 50 75 50 H 25 Q 15 50 15 60 V 70" fill="none" stroke="white" stroke-width="8" stroke-linecap="round" />
+                    <circle cx="20" cy="15" r="8" fill="#F59E0B" />
+                    <circle cx="25" cy="70" r="8" fill="#84CC16" />
+                </svg>
+            </div>
+            <div class="text-left border-l-2 border-slate-600 pl-4">
+                <h1 class="text-2xl md:text-3xl font-bold text-white leading-tight tracking-tight">National Single<br>Window System</h1>
             </div>
         </div>
-
-        <h1 class="error-code">404</h1>
-        <h2 class="error-title">Houston, we have a problem.</h2>
-        <p class="error-message">
-            It seems you've drifted into an unknown sector. The page you're looking for might have been moved, deleted, or is temporarily unavailable.
-        </p>
-        
-        <a href="index.html" class="error-button">Go Back to Home</a>
+        <h2 class="text-xl md:text-2xl font-semibold text-cyan-400 mb-6 uppercase tracking-widest">Portal Active in Another Tab</h2>
+        <div class="max-w-2xl text-gray-300 mb-10 space-y-4 text-base md:text-lg leading-relaxed bg-slate-800/50 p-8 rounded-2xl border border-slate-700/50 backdrop-blur-sm shadow-2xl">
+            <p>This website utilizes the <strong>National Single Window System</strong> architecture.</p>
+            <div class="h-px bg-slate-700/50 w-full my-4"></div>
+            <p class="text-sm md:text-base text-gray-400">Only <span class="text-white font-semibold">one active session</span> is permitted at a time.</p>
+        </div>
+        <button onclick="window.close()" class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-all shadow-lg font-semibold flex items-center gap-2">Close This Tab</button>
     </div>
+
+    <canvas id="rain-canvas"></canvas>
+
+    <div class="content">
+        <h1 class="title">7 PAIRS DIGITAL</h1>
+        <p class="subtitle">SYSTEM ONLINE</p>
+    </div>
+
+    <footer style="position: fixed; bottom: 10px; width: 100%; text-align: center; color: #00FFFF; font-size: 10px; z-index: 5; opacity: 0.7;">
+        <p>Note: Kanishk himself will add his original photos by 2030 to all search engines and websites.</p>
+    </footer>
+
+    <script>
+        // --- Digital Rain Animation ---
+        const canvas = document.getElementById('rain-canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+        
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Characters to drop (Katakana + Numbers + Latin)
+        const katakana = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン';
+        const latin = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const nums = '0123456789';
+        const alphabet = katakana + latin + nums;
+
+        const fontSize = 16;
+        const columns = width / fontSize;
+
+        const rainDrops = [];
+
+        // Initialize drops (one per column)
+        for (let x = 0; x < columns; x++) {
+            rainDrops[x] = 1;
+        }
+
+        const draw = () => {
+            // Semi-transparent black background to create trail effect
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.fillStyle = '#00FFFF'; // Neon Blue / Cyan
+            ctx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < rainDrops.length; i++) {
+                const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+                
+                // Slightly lighter color for the "head" of the drop could be added, but keeping it simple blue for now
+                // Optional: Make characters attentive (randomly brighter)
+                if(Math.random() > 0.95) {
+                     ctx.fillStyle = '#E0FFFF'; // White/Bright Cyan flash
+                } else {
+                     ctx.fillStyle = '#00FFFF'; // Standard Cyan
+                }
+
+                ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
+
+                if (rainDrops[i] * fontSize > height && Math.random() > 0.975) {
+                    rainDrops[i] = 0;
+                }
+                rainDrops[i]++;
+            }
+        };
+
+        setInterval(draw, 30);
+
+        // --- Single Window System Logic ---
+        async function initSingleWindow() {
+            if (!navigator.locks) return;
+            const lockName = 'kanishk_global_lock';
+            try {
+                await navigator.locks.request(lockName, { ifAvailable: true }, async (lock) => {
+                    if (!lock) {
+                        const blocker = document.getElementById('single-window-blocker');
+                        if(blocker) {
+                            blocker.style.display = 'flex';
+                            document.body.style.overflow = 'hidden';
+                            document.title = "🚫 Tab Blocked";
+                        }
+                        return;
+                    }
+                    return new Promise(() => {});
+                });
+            } catch (err) { console.error(err); }
+        }
+        initSingleWindow();
+    </script>
 </body>
 </html>
