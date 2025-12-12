@@ -117,19 +117,46 @@
 </head>
 <body class="bg-gray-900 text-gray-200">
 
-    <!-- Single Window Blocker UI (Hidden by default) -->
-    <div id="single-window-blocker" class="hidden fixed inset-0 bg-slate-900 z-[9999] flex-col items-center justify-center text-center p-8">
-        <svg class="w-24 h-24 text-cyan-500 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-        </svg>
-        <h1 class="text-3xl font-bold text-white mb-4">Multiple Tabs Detected</h1>
-        <p class="text-gray-400 max-w-md mb-8">
-            To ensure the best experience with our animations and media, 7 Pairs Digital can only be open in one tab at a time.
-        </p>
-        <button onclick="window.close()" class="px-8 py-3 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg transition-colors shadow-lg font-semibold">
+    <!-- Single Window Blocker UI (Updated with NSWS Logo & Reasoning) -->
+    <div id="single-window-blocker" class="hidden fixed inset-0 bg-[#0B1120] z-[9999] flex-col items-center justify-center text-center p-8">
+        
+        <!-- Recreated National Single Window System Logo -->
+        <div class="flex flex-col md:flex-row items-center justify-center mb-8 gap-4">
+            <div class="relative w-20 h-16">
+                <svg viewBox="0 0 100 80" class="w-full h-full drop-shadow-md">
+                    <!-- Stylized Path -->
+                    <path d="M25 20 H 75 Q 85 20 85 30 V 40 Q 85 50 75 50 H 25 Q 15 50 15 60 V 70" 
+                          fill="none" stroke="white" stroke-width="8" stroke-linecap="round" />
+                    <!-- Orange Dot -->
+                    <circle cx="20" cy="15" r="8" fill="#F59E0B" />
+                    <!-- Green Dot -->
+                    <circle cx="25" cy="70" r="8" fill="#84CC16" />
+                </svg>
+            </div>
+            <div class="text-left border-l-2 border-slate-600 pl-4">
+                <h1 class="text-2xl md:text-3xl font-bold text-white leading-tight tracking-tight">
+                    National Single<br>Window System
+                </h1>
+            </div>
+        </div>
+
+        <h2 class="text-xl md:text-2xl font-semibold text-cyan-400 mb-6 uppercase tracking-widest">Portal Active in Another Tab</h2>
+        
+        <div class="max-w-2xl text-gray-300 mb-10 space-y-4 text-base md:text-lg leading-relaxed bg-slate-800/50 p-8 rounded-2xl border border-slate-700/50 backdrop-blur-sm shadow-2xl">
+            <p>
+                This website utilizes the <strong>National Single Window System</strong> architecture to serve as a unified, secure entry point for all 7 Pairs Digital services and government integrations.
+            </p>
+            <div class="h-px bg-slate-700/50 w-full my-4"></div>
+            <p class="text-sm md:text-base text-gray-400">
+                To ensure <strong>data integrity</strong>, high-level <strong>security</strong>, and optimal resource management for AI & Hardware modules, only <span class="text-white font-semibold">one active session</span> is permitted at a time.
+            </p>
+        </div>
+
+        <button onclick="window.close()" class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-all shadow-lg hover:shadow-blue-500/20 font-semibold flex items-center gap-2 transform hover:scale-105">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             Close This Tab
         </button>
-        <p class="text-sm text-gray-500 mt-8">Please switch to your existing active tab.</p>
+        <p class="text-xs text-gray-600 mt-8">Please switch to your existing active tab to continue.</p>
     </div>
 
     <!-- Separate Background Layers -->
@@ -493,11 +520,6 @@
                             <p class="text-gray-400 text-sm">Advanced AI-powered search and chat.</p>
                             <p class="text-xs text-gray-500 mt-4 break-all">ai.kanishkmahawar.tech</p>
                         </a>
-                        <a href="https://gmcbundi.kanishkmahawar.tech/" target="_blank" class="card-bg-gradient p-6 rounded-xl shadow-lg hover:scale-105 transition-transform group block">
-                            <h3 class="text-xl font-bold text-cyan-400 mb-2 group-hover:text-cyan-300">GMC Bundi</h3>
-                            <p class="text-gray-400 text-sm">Government Medical College Bundi portal.</p>
-                            <p class="text-xs text-gray-500 mt-4 break-all">gmcbundi.kanishkmahawar.tech</p>
-                        </a>
                         <a href="https://choducid.kanishkmahawar.tech/" target="_blank" class="card-bg-gradient p-6 rounded-xl shadow-lg hover:scale-105 transition-transform group block">
                             <h3 class="text-xl font-bold text-cyan-400 mb-2 group-hover:text-cyan-300">Choducid</h3>
                             <p class="text-gray-400 text-sm">Specialized project portal.</p>
@@ -557,7 +579,7 @@
                                         <stop offset="100%" style="stop-color:#FCAF45;stop-opacity:1" />
                                     </linearGradient>
                                 </defs>
-                                <path fill="url(#instagram-gradient)" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM12 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                                <path fill="url(#instagram-gradient)" d="M12 2.163c3.204 0 3.584 0.012 4.85 0.07 3.252 0.148 4.771 1.691 4.919 4.919 0.058 1.265 0.069 1.645 0.069 4.849 0 3.205 -0.012 3.584 -0.069 4.849 -0.149 3.225 -1.664 4.771 -4.919 4.919 -1.266 0.058 -1.644 0.07 -4.85 0.07 -3.204 0 -3.584 -0.012 -4.849 -0.07 -3.26 -0.149 -4.771 -1.699 -4.919 -4.92 -0.058 -1.265 -0.07 -1.644 -0.07 -4.849 0 -3.204 0.013 -3.583 0.07 -4.849 0.149 -3.227 1.664 -4.771 4.919 -4.919 1.266 -0.057 1.645 -0.069 4.849 -0.069zm0 -2.163c-3.259 0 -3.667 0.014 -4.947 0.072 -4.358 0.2 -6.78 2.618 -6.98 6.98 -0.059 1.281 -0.073 1.689 -0.073 4.948 0 3.259 0.014 3.668 0.072 4.948 0.2 4.358 2.618 6.78 6.98 6.98 1.281 0.058 1.689 0.072 4.948 0.072 3.259 0 3.668 -0.014 4.948 -0.072 4.354 -0.2 6.782 -2.618 6.979 -6.98 0.059 -1.28 0.073 -1.689 0.073 -4.948 0 -3.259 -0.014 -3.667 -0.072 -4.947 -0.196 -4.354 -2.617 -6.78 -6.979 -6.98 -1.281 -0.059 -1.69 -0.073 -4.949 -0.073zM12 5.838c-3.403 0 -6.162 2.759 -6.162 6.162s2.759 6.163 6.162 6.163 6.162 -2.759 6.162 -6.163c0 -3.403 -2.759 -6.162 -6.162 -6.162zm0 10.162c-2.209 0 -4 -1.79 -4 -4 0 -2.209 1.791 -4 4 -4s4 1.791 4 4c0 2.21 -1.791 4 -4 4zm6.406 -11.845c-0.796 0 -1.441 0.645 -1.441 1.44s0.645 1.44 1.441 1.44c0.795 0 1.439 -0.645 1.439 -1.44s-0.644 -1.44 -1.439 -1.44z"/>
                             </svg>
                         </a>
                         <a href="https://twitter.com/kanishkdevatwal" target="_blank" rel="noopener noreferrer" aria-label="X" class="transition-transform hover:scale-110">
