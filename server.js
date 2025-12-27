@@ -41,19 +41,19 @@ app.use(express.static(path.join(__dirname, 'public'), {
 app.use(helmet({
   hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
   referrerPolicy: { policy: 'no-referrer' },
-  frameguard: { action: 'deny' },
-  crossOriginEmbedderPolicy: true,
+  crossOriginEmbedderPolicy: false,
   crossOriginOpenerPolicy: { policy: 'same-origin' },
   crossOriginResourcePolicy: { policy: 'same-origin' },
   contentSecurityPolicy: {
     useDefaults: true,
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", 'https://cdn.tailwindcss.com'],
-      styleSrc: ["'self'", 'https://fonts.googleapis.com', "'unsafe-inline'"],
+      scriptSrc: ["'self'", 'https://cdn.tailwindcss.com', 'https://pagead2.googlesyndication.com', 'https://cse.google.com', 'https://www.google.com'],
+      styleSrc: ["'self'", 'https://fonts.googleapis.com', 'https://www.google.com', "'unsafe-inline'"],
       imgSrc: ["'self'", 'data:', 'https:'],
       fontSrc: ["'self'", 'https://fonts.gstatic.com'],
       connectSrc: ["'self'", 'https://generativelanguage.googleapis.com'],
+      frameSrc: ["'self'", 'https://www.google.com'],
       objectSrc: ["'none'"]
     }
   }
