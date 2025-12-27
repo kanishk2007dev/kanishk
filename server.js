@@ -68,6 +68,14 @@ const apiLimiter = rateLimit({
   legacyHeaders: false
 });
 
+// Rate limit for page requests
+const pageLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
 // ----- Single device per network policy -----
 const ipLocks = new Map(); // ip -> { deviceId, lastSeen, expiresAt }
 const now = () => Date.now();
@@ -144,7 +152,7 @@ app.use((req, res, next) => {
 });
 
 // Root page
-app.get('/', (req, res) => {
+app.get('/', pageLimiter, (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
