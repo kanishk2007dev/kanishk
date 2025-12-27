@@ -15,6 +15,7 @@ const PORT = process.env.PORT || 3000;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const CORS_ORIGIN = process.env.CORS_ORIGIN || undefined;
 const SINGLE_LOCK_TTL_MS = Number(process.env.SINGLE_LOCK_TTL_MS || 60 * 60 * 1000); // 1h default
+const ALLOWED_HOSTNAME = process.env.ALLOWED_HOSTNAME || 'kanishkmahawar.tech';
 
 // Trust proxy for correct IP when behind CDN/proxy
 app.set('trust proxy', true);
@@ -92,7 +93,7 @@ app.use((req, res, next) => {
     deviceId = crypto.randomUUID();
     res.cookie('device_id', deviceId, {
       httpOnly: true,
-      secure: true, // requires HTTPS
+      secure: process.env.NODE_ENV === 'production', // Only use secure cookies in production
       sameSite: 'strict',
       maxAge: SINGLE_LOCK_TTL_MS
     });
@@ -132,8 +133,8 @@ app.use((req, res, next) => {
   if (isStatic) return next();
 
   // Redirect subdomains or deep links back to main page
-  if (req.hostname && req.hostname !== 'kanishkmahawar.tech') {
-    return res.redirect(302, 'https://kanishkmahawar.tech/');
+  if (req.hostname && req.hostname !== ALLOWED_HOSTNAME) {
+    return res.redirect(302, `https://${ALLOWED_HOSTNAME}/`);
   }
   if (req.path !== '/') {
     return res.redirect(302, '/');
@@ -151,8 +152,11 @@ app.get('/', (req, res) => {
 app.post('/gemini-proxy', apiLimiter, async (req, res) => {
   try {
     const { query } = req.body;
-    if (typeof query !== 'string' || !query.trim() || query.length > 2000) {
-      return res.status(400).json({ error: 'Invalid query' });
+    if (typeof query !== 'string' || !query.trim()) {
+      return res.status(400).json({ error: 'Query must be a non-empty string' });
+    }
+    if (query.length > 2000) {
+      return res.status(400).json({ error: 'Query must be under 2000 characters' });
     }
 
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
@@ -171,7 +175,8 @@ app.post('/gemini-proxy', apiLimiter, async (req, res) => {
 
     const data = await response.json();
     res.json(data);
-  } catch {
+  } catch (error) {
+    console.error('Gemini API error:', error);
     res.status(500).json({ error: 'Failed to get a response from the AI. Please try again later.' });
   }
 });

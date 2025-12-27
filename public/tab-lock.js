@@ -24,7 +24,8 @@
       if (hasLock) {
         channel.postMessage({ type: 'lock-denied' });
       }
-    } else if (type === 'lock-granted' || type === 'lock-denied') {
+    } else if (type === 'lock-denied') {
+      // Only redirect if we were denied the lock
       if (!hasLock) {
         window.location.replace('/');
       }
