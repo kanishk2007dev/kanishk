@@ -1,24 +1,26 @@
 {
   "name": "kanishk",
   "version": "1.0.0",
-  "description": "Personal website with AI search assistant",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+  "private": true,
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18"
   },
-  "keywords": [
-    "express",
-    "gemini",
-    "ai"
-  ],
-  "author": "",
-  "license": "ISC",
+  "scripts": {
+    "dev": "node server.js",
+    "build:obfuscate": "javascript-obfuscator ./server.js --output ./dist/server.js --compact true --control-flow-flattening true --dead-code-injection true --string-array true --string-array-encoding rc4 --transform-object-keys true --disable-console-output true --target node",
+    "start": "node server.js"
+  },
   "dependencies": {
-    "express": "^4.18.2",
-    "node-fetch": "^2.7.0",
-    "dotenv": "^16.3.1",
-    "helmet": "^7.1.0",
-    "express-rate-limit": "^7.1.5"
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^6.11.2",
+    "helmet": "^7.0.0",
+    "node-fetch": "^2.6.7"
+  },
+  "devDependencies": {
+    "javascript-obfuscator": "^4.0.2"
   }
 }
