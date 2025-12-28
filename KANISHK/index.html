@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- This is the magic tag that colors the mobile browser address bar -->
+    <meta name="theme-color" content="#1e40af">
+    <!-- Windows Phone -->
+    <meta name="msapplication-navbutton-color" content="#1e40af">
+    <!-- iOS Safari -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Blue Theme App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e40af', // matches theme-color
+                        secondary: '#eff6ff',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Custom Scrollbar for desktop consistency */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+
+    <!-- Header / App Bar -->
+    <!-- The bg-primary color here (#1e40af) matches the meta theme-color -->
+    <header class="bg-primary text-white sticky top-0 z-50 shadow-lg">
+        <div class="max-w-md mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <button class="p-2 -ml-2 rounded-full hover:bg-blue-800 transition-colors focus:outline-none focus:ring-2 focus:ring-white/20">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+                <h1 class="text-lg font-semibold tracking-wide">My Blue App</h1>
+            </div>
+            <div class="flex items-center gap-2">
+                <button class="p-2 rounded-full hover:bg-blue-800 transition-colors focus:outline-none focus:ring-2 focus:ring-white/20">
+                    <i class="fas fa-search text-lg"></i>
+                </button>
+                <button class="p-2 rounded-full hover:bg-blue-800 transition-colors focus:outline-none focus:ring-2 focus:ring-white/20">
+                    <i class="fas fa-bell text-lg"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow w-full max-w-md mx-auto p-4 space-y-6">
+        
+        <!-- Hero Card -->
+        <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Welcome Back</h2>
+            <p class="text-gray-500 mb-4">Here's what's happening today.</p>
+            <div class="flex gap-3">
+                <button class="flex-1 bg-primary text-white py-2.5 rounded-lg font-medium shadow-md shadow-blue-900/20 active:scale-95 transition-transform">
+                    Dashboard
+                </button>
+                <button class="flex-1 bg-secondary text-primary py-2.5 rounded-lg font-medium hover:bg-blue-100 active:scale-95 transition-all">
+                    Profile
+                </button>
+            </div>
+        </div>
+
+        <!-- Horizontal Scroll Section -->
+        <div>
+            <div class="flex justify-between items-center mb-3 px-1">
+                <h3 class="font-bold text-gray-800">Quick Actions</h3>
+                <button class="text-primary text-sm font-medium">See All</button>
+            </div>
+            <div class="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide">
+                <!-- Action Item 1 -->
+                <div class="flex-shrink-0 w-24 flex flex-col items-center gap-2">
+                    <div class="w-16 h-16 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center text-2xl shadow-sm">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <span class="text-xs font-medium text-gray-600">Energy</span>
+                </div>
+                <!-- Action Item 2 -->
+                <div class="flex-shrink-0 w-24 flex flex-col items-center gap-2">
+                    <div class="w-16 h-16 rounded-2xl bg-green-100 text-green-600 flex items-center justify-center text-2xl shadow-sm">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <span class="text-xs font-medium text-gray-600">Wallet</span>
+                </div>
+                <!-- Action Item 3 -->
+                <div class="flex-shrink-0 w-24 flex flex-col items-center gap-2">
+                    <div class="w-16 h-16 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center text-2xl shadow-sm">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <span class="text-xs font-medium text-gray-600">Stats</span>
+                </div>
+                <!-- Action Item 4 -->
+                <div class="flex-shrink-0 w-24 flex flex-col items-center gap-2">
+                    <div class="w-16 h-16 rounded-2xl bg-pink-100 text-pink-600 flex items-center justify-center text-2xl shadow-sm">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <span class="text-xs font-medium text-gray-600">Health</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- List Section -->
+        <div>
+            <h3 class="font-bold text-gray-800 mb-3 px-1">Recent Activity</h3>
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <!-- List Item 1 -->
+                <div class="p-4 flex items-center gap-4 border-b border-gray-50 active:bg-gray-50 transition-colors">
+                    <div class="w-10 h-10 rounded-full bg-blue-50 text-primary flex items-center justify-center">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <div class="flex-grow">
+                        <h4 class="font-medium text-gray-800">Payment Sent</h4>
+                        <p class="text-xs text-gray-400">Today, 10:23 AM</p>
+                    </div>
+                    <span class="font-semibold text-gray-800">-$45.00</span>
+                </div>
+                <!-- List Item 2 -->
+                <div class="p-4 flex items-center gap-4 border-b border-gray-50 active:bg-gray-50 transition-colors">
+                    <div class="w-10 h-10 rounded-full bg-green-50 text-green-600 flex items-center justify-center">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <div class="flex-grow">
+                        <h4 class="font-medium text-gray-800">Deposit</h4>
+                        <p class="text-xs text-gray-400">Yesterday, 5:40 PM</p>
+                    </div>
+                    <span class="font-semibold text-green-600">+$250.00</span>
+                </div>
+                <!-- List Item 3 -->
+                <div class="p-4 flex items-center gap-4 active:bg-gray-50 transition-colors">
+                    <div class="w-10 h-10 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div class="flex-grow">
+                        <h4 class="font-medium text-gray-800">System Update</h4>
+                        <p class="text-xs text-gray-400">Oct 24, 2:00 PM</p>
+                    </div>
+                    <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">Auto</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bg-white border-t border-gray-200 sticky bottom-0 pb-safe">
+        <div class="max-w-md mx-auto px-6 h-16 flex justify-between items-center">
+            <button class="flex flex-col items-center gap-1 text-primary w-12">
+                <i class="fas fa-home text-xl"></i>
+                <span class="text-[10px] font-medium">Home</span>
+            </button>
+            <button class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-600 transition-colors w-12">
+                <i class="fas fa-compass text-xl"></i>
+                <span class="text-[10px] font-medium">Explore</span>
+            </button>
+            <div class="relative -top-5">
+                <button class="w-14 h-14 bg-primary rounded-full text-white shadow-lg shadow-blue-600/30 flex items-center justify-center text-2xl active:scale-95 transition-transform border-4 border-gray-50">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+            <button class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-600 transition-colors w-12">
+                <i class="fas fa-comment-alt text-xl"></i>
+                <span class="text-[10px] font-medium">Chat</span>
+            </button>
+            <button class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-600 transition-colors w-12">
+                <i class="fas fa-user text-xl"></i>
+                <span class="text-[10px] font-medium">Profile</span>
+            </button>
+        </div>
+    </nav>
+    
+    <!-- Safe area padding for iPhones with home indicator -->
+    <style>
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+    </style>
+</body>
+</html>
