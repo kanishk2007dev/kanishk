@@ -1,0 +1,300 @@
+import React, { useState, useEffect } from 'react';
+import { 
+  Heart, 
+  MessageCircle, 
+  Send, 
+  Bookmark, 
+  MoreHorizontal, 
+  Home, 
+  Search, 
+  PlusSquare, 
+  Film, 
+  User,
+  Compass,
+  Menu
+} from 'lucide-react';
+
+// --- Mock Data ---
+
+const STORIES = [
+  { id: 1, username: 'your_story', avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop', isUser: true },
+  { id: 2, username: 'jessica_travels', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop', hasStory: true },
+  { id: 3, username: 'photography_daily', avatar: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=150&h=150&fit=crop', hasStory: true },
+  { id: 4, username: 'design_pro', avatar: 'https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=150&h=150&fit=crop', hasStory: true },
+  { id: 5, username: 'foodie_life', avatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150&h=150&fit=crop', hasStory: true },
+  { id: 6, username: 'art_gallery', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop', hasStory: true },
+];
+
+const POSTS = [
+  {
+    id: 1,
+    username: 'jessica_travels',
+    location: 'Santorini, Greece',
+    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop',
+    image: 'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=1080&h=1080&fit=crop',
+    likes: 1243,
+    caption: 'Sunset views that take your breath away. 🌅✨ #travel #greece #summer',
+    comments: 42,
+    time: '2 HOURS AGO',
+    liked: false
+  },
+  {
+    id: 2,
+    username: 'design_pro',
+    location: null,
+    avatar: 'https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=150&h=150&fit=crop',
+    image: 'https://images.unsplash.com/photo-1600607686527-6fb886090705?w=1080&h=1350&fit=crop',
+    likes: 856,
+    caption: 'Minimalist workspace setup for maximum productivity. 💻☕',
+    comments: 15,
+    time: '5 HOURS AGO',
+    liked: true
+  },
+  {
+    id: 3,
+    username: 'photography_daily',
+    location: 'Tokyo, Japan',
+    avatar: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=150&h=150&fit=crop',
+    image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=1080&h=1080&fit=crop',
+    likes: 3421,
+    caption: 'Neon nights in Shinjuku. 🏮📸',
+    comments: 128,
+    time: '1 DAY AGO',
+    liked: false
+  }
+];
+
+// --- Components ---
+
+const StoryCircle = ({ story }) => {
+  return (
+    <div className="flex flex-col items-center space-y-1 min-w-[72px] cursor-pointer">
+      <div className={`p-[3px] rounded-full ${story.isUser ? '' : 'bg-gradient-to-tr from-yellow-400 to-fuchsia-600'}`}>
+        <div className="bg-white p-[2px] rounded-full">
+          <img 
+            src={story.avatar} 
+            alt={story.username} 
+            className="w-14 h-14 rounded-full object-cover border border-gray-100"
+          />
+        </div>
+      </div>
+      <span className="text-xs truncate w-16 text-center text-gray-800">
+        {story.isUser ? 'Your story' : story.username}
+      </span>
+      {story.isUser && (
+        <div className="absolute top-10 right-1 bg-blue-500 rounded-full w-5 h-5 flex items-center justify-center border-2 border-white translate-x-3 translate-y-3">
+           <span className="text-white text-xs font-bold">+</span>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const Post = ({ post }) => {
+  const [isLiked, setIsLiked] = useState(post.liked);
+  const [likes, setLikes] = useState(post.likes);
+  const [isSaved, setIsSaved] = useState(false);
+
+  const handleLike = () => {
+    if (isLiked) {
+      setLikes(likes - 1);
+    } else {
+      setLikes(likes + 1);
+    }
+    setIsLiked(!isLiked);
+  };
+
+  return (
+    <div className="bg-white border-b border-gray-200 pb-4 mb-2">
+      {/* Header */}
+      <div className="flex items-center justify-between p-3">
+        <div className="flex items-center space-x-3">
+          <div className="p-[2px] rounded-full bg-gradient-to-tr from-yellow-400 to-fuchsia-600">
+             <div className="bg-white p-[1.5px] rounded-full">
+                <img src={post.avatar} alt={post.username} className="w-8 h-8 rounded-full object-cover" />
+             </div>
+          </div>
+          <div>
+            <p className="font-semibold text-sm">{post.username}</p>
+            {post.location && <p className="text-xs text-gray-500">{post.location}</p>}
+          </div>
+        </div>
+        <MoreHorizontal className="w-5 h-5 text-gray-600 cursor-pointer" />
+      </div>
+
+      {/* Image */}
+      <div className="relative w-full aspect-square bg-gray-100" onDoubleClick={handleLike}>
+        <img src={post.image} alt="Post content" className="w-full h-full object-cover" />
+      </div>
+
+      {/* Actions */}
+      <div className="p-3 pb-0">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center space-x-4">
+            <button onClick={handleLike} className="focus:outline-none transform active:scale-90 transition-transform">
+              <Heart 
+                className={`w-7 h-7 ${isLiked ? 'fill-red-500 text-red-500' : 'text-gray-800 hover:text-gray-500'}`} 
+              />
+            </button>
+            <MessageCircle className="w-7 h-7 text-gray-800 hover:text-gray-500 cursor-pointer -rotate-90" />
+            <Send className="w-7 h-7 text-gray-800 hover:text-gray-500 cursor-pointer" />
+          </div>
+          <button onClick={() => setIsSaved(!isSaved)}>
+            <Bookmark className={`w-7 h-7 ${isSaved ? 'fill-black text-black' : 'text-gray-800 hover:text-gray-500'}`} />
+          </button>
+        </div>
+
+        {/* Likes & Caption */}
+        <p className="font-semibold text-sm mb-1">{likes.toLocaleString()} likes</p>
+        <div className="text-sm mb-1">
+          <span className="font-semibold mr-2">{post.username}</span>
+          <span className="text-gray-800">{post.caption}</span>
+        </div>
+        <p className="text-gray-500 text-sm cursor-pointer mb-1">View all {post.comments} comments</p>
+        <p className="text-[10px] text-gray-400 uppercase tracking-wide">{post.time}</p>
+      </div>
+    </div>
+  );
+};
+
+const Header = () => (
+  <header className="sticky top-0 z-50 bg-white border-b border-gray-200 h-[60px] flex items-center justify-between px-4 max-w-lg mx-auto w-full">
+    <img 
+      src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Instagram_logo.svg/1200px-Instagram_logo.svg.png" 
+      alt="Instagram" 
+      className="h-8 mt-1 object-contain"
+    />
+    <div className="flex items-center space-x-5">
+      <div className="relative">
+        <Heart className="w-6 h-6 text-gray-800 cursor-pointer hover:text-gray-600" />
+        <div className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border border-white"></div>
+      </div>
+      <div className="relative">
+        <MessageCircle className="w-6 h-6 text-gray-800 cursor-pointer hover:text-gray-600 -rotate-12" />
+        <div className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1 rounded-full flex items-center justify-center h-4 border border-white">
+          3
+        </div>
+      </div>
+    </div>
+  </header>
+);
+
+const BottomNav = ({ activeTab, setActiveTab }) => {
+  const tabs = [
+    { id: 'home', icon: Home, label: 'Home' },
+    { id: 'search', icon: Search, label: 'Search' },
+    { id: 'create', icon: PlusSquare, label: 'Create' },
+    { id: 'reels', icon: Film, label: 'Reels' },
+    { id: 'profile', icon: User, label: 'Profile' }, // Using icon instead of image for simplicity
+  ];
+
+  return (
+    <nav className="fixed bottom-0 z-50 w-full bg-white border-t border-gray-200 h-[50px] pb-safe">
+      <div className="flex items-center justify-around h-full max-w-lg mx-auto">
+        {tabs.map((tab) => (
+          <button 
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className="p-2 focus:outline-none"
+          >
+            {tab.id === 'profile' ? (
+               <div className={`w-6 h-6 rounded-full overflow-hidden border ${activeTab === 'profile' ? 'border-black border-2' : 'border-gray-200'}`}>
+                   <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop" className="w-full h-full object-cover" />
+               </div>
+            ) : (
+                <tab.icon 
+                  className={`w-6 h-6 ${activeTab === tab.id ? 'text-black stroke-[3px]' : 'text-gray-500'}`} 
+                />
+            )}
+          </button>
+        ))}
+      </div>
+    </nav>
+  );
+};
+
+// --- Main App Component ---
+
+const App = () => {
+  const [activeTab, setActiveTab] = useState('home');
+
+  // Effect to handle the "Blue Address Bar" requirement
+  useEffect(() => {
+    // This attempts to set the browser theme color to Instagram Blue (or the requested blue)
+    // This works on mobile browsers (Android Chrome, Safari iOS 15+)
+    let metaThemeColor = document.querySelector("meta[name='theme-color']");
+    if (!metaThemeColor) {
+      metaThemeColor = document.createElement('meta');
+      metaThemeColor.name = "theme-color";
+      document.head.appendChild(metaThemeColor);
+    }
+    // Using a specific blue. #0095f6 is Instagram brand blue, 
+    // but users sometimes refer to Facebook-blue wrappers or deep blue headers.
+    // I'll stick to a vibrant blue to make it noticeable as per request.
+    metaThemeColor.content = "#0095f6"; 
+
+    // Cleanup: reset on unmount if needed (optional)
+    return () => {
+        // metaThemeColor.content = "#ffffff"; 
+    };
+  }, []);
+
+  return (
+    <div className="bg-gray-50 min-h-screen font-sans text-gray-900 pb-16">
+      
+      {/* Mobile-centric container */}
+      <div className="max-w-lg mx-auto bg-white min-h-screen shadow-lg relative">
+        
+        <Header />
+
+        {/* Scrollable Content Area */}
+        <main className="overflow-y-auto">
+          
+          {/* Stories Section */}
+          <div className="border-b border-gray-200 py-4 overflow-x-auto no-scrollbar">
+            <div className="flex space-x-4 px-4">
+              {STORIES.map(story => (
+                <StoryCircle key={story.id} story={story} />
+              ))}
+            </div>
+          </div>
+
+          {/* Feed Section */}
+          <div className="pb-4">
+            {POSTS.map(post => (
+              <Post key={post.id} post={post} />
+            ))}
+          </div>
+
+          {/* Fallback for empty feed or bottom spacing */}
+          <div className="flex flex-col items-center justify-center py-10 text-gray-400">
+            <div className="w-16 h-16 rounded-full border-2 border-gray-300 flex items-center justify-center mb-4">
+               <span className="text-3xl">✓</span>
+            </div>
+            <p>You're all caught up</p>
+          </div>
+
+        </main>
+
+        <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+        
+      </div>
+
+      {/* CSS to hide scrollbar but keep functionality */}
+      <style>{`
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .pb-safe {
+          padding-bottom: env(safe-area-inset-bottom);
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default App;
