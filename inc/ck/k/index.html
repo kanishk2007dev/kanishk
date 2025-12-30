@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FORTRESS | NUCLEAR COMMAND SC-11 RAJASTHAN</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Orbitron:wght@400;700&display=swap');
+
+        :root {
+            --security-primary: #00ff41;
+            --security-warning: #facc15;
+            --security-danger: #ef4444;
+            --security-bg: #050507;
+            --security-accent: #0f1115;
+        }
+
+        body {
+            background-color: var(--security-bg);
+            color: #94a3b8;
+            font-family: 'JetBrains Mono', monospace;
+            overflow: hidden;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* High-Performance Matrix Code Rain */
+        #codeRain {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; opacity: 0.25; pointer-events: none;
+        }
+
+        .crt-overlay {
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            background-size: 100% 3px, 3px 100%;
+            z-index: 999; pointer-events: none;
+        }
+
+        .secure-panel {
+            background: rgba(10, 11, 14, 0.92);
+            backdrop-filter: blur(12px);
+            border: 1px solid #1e293b;
+            box-shadow: 0 0 40px rgba(0,0,0,1);
+            position: relative;
+            z-index: 10;
+        }
+
+        .secure-panel::after {
+            content: "";
+            position: absolute;
+            top: 0; right: 0; width: 3px; height: 100%;
+            background: var(--security-primary);
+            opacity: 0.2;
+        }
+
+        .status-danger { animation: blink-red 0.5s infinite; }
+        @keyframes blink-red { 0%, 100% { opacity: 1; filter: brightness(1.5); } 50% { opacity: 0.2; } }
+
+        .grid-bg {
+            background-image: linear-gradient(#1e293b 1px, transparent 1px), linear-gradient(90deg, #1e293b 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        #contentWrapper {
+            position: relative;
+            z-index: 20;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .trace-active {
+            animation: trace-pulse 1.5s infinite;
+        }
+
+        @keyframes trace-pulse {
+            0% { border-color: var(--security-danger); box-shadow: 0 0 10px rgba(239, 68, 68, 0.2); }
+            50% { border-color: var(--security-warning); box-shadow: 0 0 20px rgba(250, 204, 21, 0.4); }
+            100% { border-color: var(--security-danger); box-shadow: 0 0 10px rgba(239, 68, 68, 0.2); }
+        }
+
+        .entropy-bar { transition: height 0.3s ease; }
+    </style>
+</head>
+<body class="select-none">
+    <canvas id="codeRain"></canvas>
+    <div class="crt-overlay"></div>
+
+    <div id="contentWrapper">
+        <!-- TOP SYSTEM BAR -->
+        <nav class="h-16 border-b border-gray-800 bg-black/90 flex items-center px-8 justify-between shrink-0">
+            <div class="flex items-center gap-8">
+                <div class="flex items-center gap-4">
+                    <i class="fas fa-radiation text-yellow-500 text-2xl animate-pulse"></i>
+                    <div class="flex flex-col text-left">
+                        <span class="font-bold text-white tracking-[0.4em] font-['Orbitron'] text-lg">FORTRESS <span class="text-green-500">SC-11</span></span>
+                        <span class="text-[8px] text-gray-500 font-mono tracking-[0.2em]">RAJASTHAN_SECTOR_CONTROL</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-10 items-center text-[10px]">
+                <div class="text-right">
+                    <p class="text-gray-500 uppercase font-bold tracking-widest">Operator Intercept</p>
+                    <p id="capturedIP" class="text-green-500 font-bold font-mono text-xs tracking-tighter">TRACING...</p>
+                </div>
+                <div class="text-right hidden sm:block">
+                    <p class="text-gray-500 uppercase font-bold tracking-widest">System Time</p>
+                    <p id="realTime" class="text-white font-bold text-xs font-mono">00:00:00 UTC</p>
+                </div>
+                <div class="px-3 py-1 bg-red-600 text-white rounded font-bold">CLEARANCE: OMEGA</div>
+            </div>
+        </nav>
+
+        <!-- MAIN DASHBOARD CONTENT -->
+        <div class="flex-1 overflow-hidden grid grid-cols-12 gap-1 p-1">
+            
+            <!-- LEFT: SIGINT TRACKER (The "Tracking" Module) -->
+            <aside class="col-span-12 lg:col-span-4 flex flex-col gap-1 overflow-y-auto">
+                <div id="trackerPanel" class="secure-panel p-6 flex flex-col h-full transition-all duration-500">
+                    <div class="flex justify-between items-center mb-6 border-b border-gray-800 pb-3">
+                        <span class="text-[10px] font-bold text-white tracking-[0.2em] uppercase">SIGINT_INTERCEPT_V11</span>
+                        <i id="radarIcon" class="fas fa-satellite-dish text-blue-500"></i>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-black/80 p-5 border border-gray-800 rounded-xl">
+                            <label class="text-[9px] text-gray-500 uppercase font-bold mb-3 block">Indian Subscriber Discovery</label>
+                            <div class="flex gap-2">
+                                <span class="flex items-center px-4 bg-gray-900 border border-gray-700 text-gray-400 rounded-lg text-sm font-bold">+91</span>
+                                <input id="phoneInput" type="text" maxlength="10" placeholder="98XXXXXXXX" 
+                                    class="flex-1 bg-black border border-gray-700 text-green-500 px-4 py-4 rounded-lg focus:outline-none focus:border-green-500 font-mono tracking-[0.3em] text-lg">
+                            </div>
+                            <button onclick="executeTrace()" class="w-full mt-6 py-4 bg-green-600/10 hover:bg-green-600 text-green-500 hover:text-black font-bold uppercase tracking-[0.3em] text-[10px] rounded-lg border border-green-500/50 transition-all active:scale-[0.97]">
+                                <i class="fas fa-search-location mr-2"></i> Execute High-Yield Trace
+                            </button>
+                        </div>
+
+                        <!-- Intercept Telemetry Result -->
+                        <div id="traceResult" class="hidden space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                            <div class="p-5 bg-blue-950/20 border border-blue-500/40 rounded-xl space-y-4 font-mono text-[11px] shadow-2xl">
+                                <div class="flex justify-between border-b border-white/5 pb-2">
+                                    <span class="text-gray-500 uppercase">Target_Location</span>
+                                    <span id="resRegion" class="text-white font-bold uppercase tracking-widest text-right">---</span>
+                                </div>
+                                <div class="flex justify-between border-b border-white/5 pb-2">
+                                    <span class="text-gray-500 uppercase">Network_Carrier</span>
+                                    <span id="resOperator" class="text-blue-400 font-bold uppercase tracking-widest">---</span>
+                                </div>
+                                <div class="flex justify-between border-b border-white/5 pb-2">
+                                    <span class="text-gray-500 uppercase">Geo_Lat</span>
+                                    <span id="resLat" class="text-white font-bold">---</span>
+                                </div>
+                                <div class="flex justify-between border-b border-white/5 pb-2">
+                                    <span class="text-gray-500 uppercase">Geo_Long</span>
+                                    <span id="resLong" class="text-white font-bold">---</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-500 uppercase">Bitrate_Signal</span>
+                                    <span id="resSignal" class="px-2 py-0.5 bg-green-500/20 text-green-500 rounded text-[9px] font-bold tracking-widest">---</span>
+                                </div>
+                            </div>
+
+                            <div class="h-1 bg-gray-900 rounded-full overflow-hidden">
+                                <div id="interceptBar" class="h-full bg-blue-500 w-0 transition-all duration-300"></div>
+                            </div>
+                            <div class="bg-red-500/5 border border-red-500/20 p-3 rounded text-[8px] text-red-400 font-mono italic leading-relaxed">
+                                WARNING: Real-time SS7-Link bypass in progress. Physical air-gap suppressed for duration of tactical intercept.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- CENTER: TACTICAL MAP -->
+            <main class="col-span-12 lg:col-span-5 flex flex-col gap-1 overflow-hidden relative">
+                <div class="flex-1 secure-panel grid-bg p-8 flex flex-col relative overflow-hidden">
+                    <div class="flex justify-between items-start mb-8 relative z-20">
+                        <div>
+                            <h2 class="text-xl font-bold text-white tracking-[0.4em] uppercase font-['Orbitron']">Strategic Visualization</h2>
+                            <p class="text-[10px] text-blue-400 font-mono tracking-widest mt-1">SATELLITE: CARTOSAT-RAJASTHAN_HIGH_RES</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[9px] text-gray-500 uppercase font-mono">Zoom: 8.5x</span>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 relative border border-gray-800 bg-black/60 rounded-2xl overflow-hidden shadow-2xl z-10">
+                        <div id="radarPulse" class="absolute h-1 w-1 bg-red-500 rounded-full scale-0 opacity-0 z-30 shadow-[0_0_20px_red]"></div>
+                        <canvas id="tacticalMap" class="w-full h-full opacity-40"></canvas>
+                        
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div class="text-[100px] font-bold text-green-500/5 font-['Orbitron'] select-none">RAJASTHAN</div>
+                        </div>
+
+                        <!-- Data Overlay -->
+                        <div class="absolute bottom-6 right-6 flex flex-col gap-2">
+                            <div class="bg-black/90 border border-gray-700 p-3 rounded-lg text-[9px] font-mono space-y-1">
+                                <p class="text-blue-500 font-bold uppercase tracking-widest border-b border-gray-800 pb-1 mb-1">Sector_Data</p>
+                                <p class="text-white">JAIPUR: NOMINAL</p>
+                                <p class="text-white">DAUSA: SCANNING</p>
+                                <p class="text-white">BUNDI: STANDBY</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- RIGHT: THREAT TELEMETRY -->
+            <aside class="col-span-12 lg:col-span-3 flex flex-col gap-1 overflow-hidden">
+                <div class="secure-panel flex-1 flex flex-col overflow-hidden">
+                    <div class="p-4 border-b border-gray-800 bg-black/60 flex justify-between items-center">
+                        <span class="text-[10px] font-bold text-white tracking-[0.2em] uppercase">Intelligence Feed</span>
+                        <div class="h-2 w-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_5px_#00ff41]"></div>
+                    </div>
+                    <div id="logScroll" class="p-5 font-mono text-[9px] space-y-3 overflow-y-auto flex-1 bg-black/10">
+                        <!-- JS logs -->
+                    </div>
+                </div>
+
+                <div class="secure-panel p-6 h-40">
+                    <span class="text-[10px] font-bold text-white tracking-[0.2em] uppercase mb-4 block border-b border-gray-800 pb-2">Quantum Logic Load</span>
+                    <div class="flex items-end justify-center gap-1.5 h-16">
+                        <div class="entropy-bar w-2 bg-blue-500 h-[40%]"></div>
+                        <div class="entropy-bar w-2 bg-blue-500 h-[70%]"></div>
+                        <div class="entropy-bar w-2 bg-blue-500 h-[50%] shadow-[0_0_10px_blue]"></div>
+                        <div class="entropy-bar w-2 bg-blue-500 h-[90%]"></div>
+                        <div class="entropy-bar w-2 bg-blue-500 h-[60%]"></div>
+                    </div>
+                    <p class="text-[8px] text-center text-gray-500 font-mono mt-4 uppercase tracking-[0.1em]">Engine state: immutable hardened c+5</p>
+                </div>
+            </aside>
+
+        </div>
+
+        <!-- COMMANDER FOOTER -->
+        <footer class="h-10 bg-black border-t border-gray-800 flex items-center px-8 justify-between text-[10px] font-mono shrink-0">
+            <div class="flex gap-6">
+                <span class="text-gray-500">KERNEL_HASH: <span class="text-green-500 uppercase">C5_0x99A_STABLE</span></span>
+                <span class="text-gray-500">DATA_DIODE: <span class="text-blue-500">ONE_WAY_ENABLED</span></span>
+            </div>
+            <div class="flex items-center gap-4">
+                <span class="text-gray-700 hidden md:block uppercase font-bold tracking-widest italic">Nuclear Safeguard Interlock: ACTIVE</span>
+                <div class="h-3 w-3 rounded-full bg-blue-500 shadow-[0_0_10px_#3b82f6] animate-pulse"></div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- AUTH/ALERT MODAL -->
+    <div id="secureModal" class="fixed inset-0 z-[2000] hidden bg-black/98 backdrop-blur-3xl flex items-center justify-center p-4">
+        <div class="max-w-md w-full secure-panel p-10 border-2 border-green-500/30">
+            <div class="text-center">
+                <i id="modalIcon" class="fas fa-user-shield text-6xl text-blue-500 mb-6"></i>
+                <h3 id="modalTitle" class="text-xl font-bold text-white tracking-[0.4em] font-['Orbitron'] mb-4 uppercase">SYSTEM_ACCESS</h3>
+                <div class="bg-black/90 p-5 font-mono text-[9px] text-green-500 text-left h-40 overflow-hidden border border-gray-800 rounded-xl mb-8 leading-relaxed">
+                    <div id="modalTerminal"></div>
+                </div>
+                <button onclick="hideModal()" class="w-full py-4 bg-green-600 hover:bg-green-500 text-black font-bold uppercase tracking-[0.4em] rounded-xl shadow-lg transition-transform active:scale-95">ACKNOWLEDGE</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA STRUCTURES ---
+        // Specifically mapped to Rajasthan regions as requested
+        const rajasthanCircles = [
+            { series: ["98", "99"], region: "Jaipur Metropolitan", op: "Airtel India", lat: 26.9124, long: 75.7873 },
+            { series: ["94", "95"], region: "Dausa Tactical Circle", op: "BSNL 4G+", lat: 26.8929, long: 76.3332 },
+            { series: ["88", "80"], region: "Bundi Strategic Corridor", op: "Reliance Jio 5G", lat: 25.4404, long: 75.6358 },
+            { series: ["70", "72"], region: "Rajasthan West / Jodhpur", op: "Vodafone Idea", lat: 26.2389, long: 73.0243 }
+        ];
+
+        let operatorIP = "IDENTIFYING...";
+        let codeRainActive = true;
+
+        window.onload = function() {
+            initCodeRain();
+            initTacticalMap();
+            fetchSourceInfo();
+            startSystemHeartbeat();
+        };
+
+        // --- 1. DIGITAL CODE RAIN ---
+        function initCodeRain() {
+            const canvas = document.getElementById('codeRain');
+            const ctx = canvas.getContext('2d');
+            let width, height, columns;
+            const fontSize = 16;
+            const chars = "01$#%&ｦｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ".split("");
+            let drops = [];
+
+            const resize = () => {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+                columns = Math.floor(width / fontSize);
+                drops = Array(columns).fill(1).map(() => Math.floor(Math.random() * -100));
+            };
+
+            const draw = () => {
+                ctx.fillStyle = "rgba(5, 5, 7, 0.1)";
+                ctx.fillRect(0, 0, width, height);
+                // Switch color based on system load or active trace
+                ctx.fillStyle = document.getElementById('trackerPanel').classList.contains('trace-active') ? "#ef4444" : "#00ff41";
+                ctx.font = fontSize + "px 'JetBrains Mono'";
+                for (let i = 0; i < drops.length; i++) {
+                    const text = chars[Math.floor(Math.random() * chars.length)];
+                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                    if (drops[i] * fontSize > height && Math.random() > 0.975) drops[i] = 0;
+                    drops[i]++;
+                }
+            };
+
+            window.addEventListener('resize', resize);
+            resize();
+            setInterval(draw, 50);
+        }
+
+        // --- 2. IP INTERCEPT ---
+        async function fetchSourceInfo() {
+            const ipEl = document.getElementById('capturedIP');
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                operatorIP = data.ip;
+                ipEl.innerText = operatorIP;
+                addLog(`[NET_INTERCEPT] Connection anchored from: ${operatorIP}`, "blue");
+            } catch (e) {
+                operatorIP = "LOCAL_STATION_04";
+                ipEl.innerText = operatorIP;
+                addLog("[ALERT] Handshake tracing obstructed. Air-gap mode active.", "yellow");
+            }
+        }
+
+        // --- 3. SIGINT PHONE TRACKING ---
+        function executeTrace() {
+            const num = document.getElementById('phoneInput').value;
+            const resDiv = document.getElementById('traceResult');
+            const bar = document.getElementById('interceptBar');
+            const tracker = document.getElementById('trackerPanel');
+
+            if (num.length < 10 || isNaN(num)) {
+                alertModal("ERROR: INVALID_KEY_SEQUENCE", "> INTERCEPT_ABORTED\n> REASON: Non-numeric or invalid length sequence.\n> ACTION: Input valid 10-digit Indian Mobile Sequence.");
+                return;
+            }
+
+            tracker.classList.add('trace-active');
+            resDiv.classList.remove('hidden');
+            bar.style.width = '0%';
+            addLog(`[SIGINT] Initiating deep-packet trace on +91-${num}...`, "warning");
+
+            let p = 0;
+            const iv = setInterval(() => {
+                p += Math.random() * 12;
+                if(p >= 100) {
+                    p = 100;
+                    clearInterval(iv);
+                    tracker.classList.remove('trace-active');
+                    finalizeTrace(num);
+                }
+                bar.style.width = p + '%';
+            }, 150);
+        }
+
+        function finalizeTrace(num) {
+            const prefix = num.substring(0, 2);
+            // Specifically look for Jaipur/Dausa/Bundi mapping
+            const info = rajasthanCircles.find(c => c.series.includes(prefix)) || 
+                         { region: "Generic Rajasthan Circle", op: "Reliance Jio / Airtel", lat: 27.0238, long: 74.2179 };
+            
+            document.getElementById('resRegion').innerText = info.region;
+            document.getElementById('resOperator').innerText = info.op;
+            document.getElementById('resLat').innerText = info.lat + "° N";
+            document.getElementById('resLong').innerText = info.long + "° E";
+            document.getElementById('resSignal').innerText = "-" + Math.floor(Math.random() * 20 + 70) + " dBm [5G]";
+            
+            addLog(`[SUCCESS] Subscriber located in ${info.region}. IP proxy matched.`, "green");
+            triggerRadarPulse();
+        }
+
+        function triggerRadarPulse() {
+            const p = document.getElementById('radarPulse');
+            p.style.left = (Math.random() * 60 + 20) + '%';
+            p.style.top = (Math.random() * 60 + 20) + '%';
+            p.animate([{transform:'scale(0)', opacity:1}, {transform:'scale(150)', opacity:0}], {duration: 3000});
+        }
+
+        // --- 4. MAP & TELEMETRY ---
+        function initTacticalMap() {
+            const canvas = document.getElementById('tacticalMap');
+            const ctx = canvas.getContext('2d');
+            
+            const resize = () => {
+                canvas.width = canvas.parentElement.clientWidth;
+                canvas.height = canvas.parentElement.clientHeight;
+            };
+            window.addEventListener('resize', resize);
+            resize();
+
+            function draw() {
+                const w = canvas.width, h = canvas.height;
+                ctx.clearRect(0,0,w,h);
+                ctx.strokeStyle = "rgba(0, 255, 65, 0.1)";
+                ctx.beginPath();
+                for(let i=0; i<w; i+=40) { ctx.moveTo(i,0); ctx.lineTo(i,h); }
+                for(let i=0; i<h; i+=40) { ctx.moveTo(0,i); ctx.lineTo(w,i); }
+                ctx.stroke();
+
+                const scanLine = (Date.now()/2500) % 1;
+                ctx.fillStyle = "rgba(0, 255, 65, 0.04)";
+                ctx.fillRect(0, scanLine * h, w, 20);
+
+                requestAnimationFrame(draw);
+            }
+            draw();
+        }
+
+        function startSystemHeartbeat() {
+            setInterval(() => {
+                const time = new Date().toUTCString().split(' ')[4] + ' UTC';
+                document.getElementById('realTime').innerText = time;
+            }, 1000);
+
+            setInterval(() => {
+                document.querySelectorAll('.entropy-bar').forEach(bar => {
+                    bar.style.height = Math.floor(Math.random() * 70 + 30) + '%';
+                });
+            }, 500);
+
+            setInterval(() => addLog(), 6000);
+        }
+
+        function addLog(text, color="green") {
+            const scroll = document.getElementById('logScroll');
+            if(!scroll) return;
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+            const logs = [
+                "C+5_HARDEN: std::atomic_memory_fence() verified.",
+                "HSM_RELAY: Quantum signature validated for node 07.",
+                "KERNEL: Direct memory access isolation active [L3].",
+                "SAT_UPLINK: CARTOSAT link stabilization complete.",
+                "FIREWALL: Heuristic check passed for air-gap station."
+            ];
+            const logMsg = text || logs[Math.floor(Math.random() * logs.length)];
+            const div = document.createElement('div');
+            div.className = "p-1 rounded border-l border-white/5 hover:bg-white/5 transition-all";
+            div.innerHTML = `<span class="text-gray-700">[${time}]</span> <span class="text-${color}-500/80">[${operatorIP}] ${logMsg}</span>`;
+            scroll.appendChild(div);
+            scroll.scrollTop = scroll.scrollHeight;
+            if(scroll.childNodes.length > 30) scroll.removeChild(scroll.firstChild);
+        }
+
+        function alertModal(title, msg) {
+            const modal = document.getElementById('secureModal');
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalTerminal').innerText = msg;
+            modal.classList.remove('hidden');
+        }
+
+        function hideModal() { document.getElementById('secureModal').classList.add('hidden'); }
+    </script>
+</body>
+</html>
