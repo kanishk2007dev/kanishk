@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FORTRESS | NUCLEAR COMMAND SC-10</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Orbitron:wght@400;700&display=swap');
+
+        :root {
+            --security-primary: #00ff41;
+            --security-warning: #facc15;
+            --security-danger: #ef4444;
+            --security-bg: #050507;
+            --security-accent: #0f1115;
+        }
+
+        body {
+            background-color: var(--security-bg);
+            color: #94a3b8;
+            font-family: 'JetBrains Mono', monospace;
+            overflow: hidden;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* Digital Code Rain Canvas */
+        #codeRain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.25;
+            pointer-events: none;
+        }
+
+        .crt-overlay {
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            background-size: 100% 3px, 3px 100%;
+            z-index: 999;
+            pointer-events: none;
+        }
+
+        .scanline {
+            width: 100%;
+            height: 100px;
+            z-index: 998;
+            background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(0, 255, 65, 0.04) 50%, rgba(0, 0, 0, 0) 100%);
+            position: absolute;
+            animation: scanline 10s linear infinite;
+        }
+
+        @keyframes scanline {
+            0% { top: -100px; }
+            100% { top: 100%; }
+        }
+
+        .secure-panel {
+            background: rgba(10, 11, 14, 0.92);
+            backdrop-filter: blur(12px);
+            border: 1px solid #1e293b;
+            box-shadow: 0 0 40px rgba(0,0,0,1);
+            position: relative;
+            z-index: 10;
+        }
+
+        .secure-panel::after {
+            content: "";
+            position: absolute;
+            top: 0; right: 0; width: 3px; height: 100%;
+            background: var(--security-primary);
+            opacity: 0.2;
+        }
+
+        .status-danger { animation: blink-red 0.5s infinite; }
+        @keyframes blink-red { 0%, 100% { opacity: 1; filter: brightness(1.5); } 50% { opacity: 0.2; } }
+
+        .nuclear-glow {
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.3);
+        }
+
+        .grid-bg {
+            background-image: linear-gradient(#1e293b 1px, transparent 1px), linear-gradient(90deg, #1e293b 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        #contentWrapper {
+            position: relative;
+            z-index: 20;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .log-entry {
+            border-left: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .log-entry:hover {
+            border-left-color: var(--security-primary);
+            background: rgba(0, 255, 65, 0.05);
+        }
+    </style>
+</head>
+<body class="select-none">
+    <!-- Matrix Background Layer -->
+    <canvas id="codeRain"></canvas>
+    
+    <div class="crt-overlay"></div>
+    <div class="scanline"></div>
+
+    <div id="contentWrapper">
+        <!-- TOP SYSTEM BAR -->
+        <nav class="h-16 border-b border-gray-800 bg-black/90 flex items-center px-8 justify-between shrink-0">
+            <div class="flex items-center gap-8">
+                <div class="flex items-center gap-4">
+                    <i class="fas fa-radiation text-yellow-500 text-2xl animate-pulse"></i>
+                    <div class="flex flex-col">
+                        <span class="font-bold text-white tracking-[0.4em] font-['Orbitron'] text-lg">FORTRESS <span class="text-green-500">SC-10</span></span>
+                        <span class="text-[8px] text-gray-500 font-mono tracking-[0.2em]">GLOBAL STRATEGIC DEFENSE NETWORK</span>
+                    </div>
+                </div>
+                <div class="h-6 w-px bg-gray-800 hidden lg:block"></div>
+                <div class="hidden lg:block text-[10px] space-y-0.5">
+                    <p class="text-gray-500 font-mono italic">ENGINE: <span class="text-blue-400 font-bold uppercase tracking-widest">Hardened C+5 Runtime</span></p>
+                    <p class="text-gray-500 font-mono">STATUS: <span class="text-green-500 font-bold uppercase">All Nodes Nominal</span></p>
+                </div>
+            </div>
+
+            <div class="flex gap-10 items-center text-[10px]">
+                <div class="text-right">
+                    <p class="text-gray-500 uppercase font-bold tracking-widest">Source Intercept</p>
+                    <p id="capturedIP" class="text-green-500 font-bold font-mono text-xs tracking-tighter">TRACING...</p>
+                </div>
+                <div class="text-right hidden sm:block">
+                    <p class="text-gray-500 uppercase font-bold tracking-widest">System Time</p>
+                    <p id="realTime" class="text-white font-bold text-xs font-mono">00:00:00 UTC</p>
+                </div>
+                <div class="flex gap-3">
+                    <div class="px-3 py-1 bg-red-600 text-white rounded font-bold animate-pulse">DEFCON 3</div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- MAIN DASHBOARD CONTENT -->
+        <div class="flex-1 overflow-hidden grid grid-cols-12 gap-1 p-1">
+            
+            <!-- LEFT: DEFENSE & MEMORY -->
+            <aside class="col-span-12 lg:col-span-3 flex flex-col gap-1 overflow-y-auto">
+                
+                <!-- OPERATOR ACCESS -->
+                <div class="secure-panel p-6">
+                    <div class="flex justify-between items-center mb-6 border-b border-gray-800 pb-3">
+                        <span class="text-[10px] font-bold text-white tracking-[0.2em] uppercase">Security Clearance</span>
+                        <i class="fas fa-id-card-alt text-blue-500"></i>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="bg-black/80 p-4 border border-gray-800 rounded-lg">
+                            <p class="text-[8px] text-gray-500 mb-1">OPERATOR_ID</p>
+                            <p class="text-sm text-white font-bold font-mono tracking-widest">DR_KANISHK_V9</p>
+                            <p class="text-[9px] text-green-500 mt-2 flex items-center gap-2">
+                                <i class="fas fa-check-circle"></i> BIOMETRICS_LOCKED
+                            </p>
+                        </div>
+                        <div class="space-y-2">
+                            <button onclick="simulateAuth('Quantum Re-Key')" class="w-full p-3 bg-blue-900/20 hover:bg-blue-600/40 text-[9px] text-blue-400 border border-blue-900/50 rounded-lg flex items-center justify-between transition-all">
+                                <span>Q-SIGNATURE REFRESH</span>
+                                <i class="fas fa-atom"></i>
+                            </button>
+                            <button onclick="simulateAuth('Emergency Lockdown')" class="w-full p-3 bg-red-900/20 hover:bg-red-600/40 text-[9px] text-red-400 border border-red-900/50 rounded-lg flex items-center justify-between transition-all">
+                                <span>SYS_LEVEL_LOCK</span>
+                                <i class="fas fa-lock"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MEMORY INTEGRITY -->
+                <div class="secure-panel p-6 flex-1 flex flex-col">
+                    <span class="text-[10px] font-bold text-white tracking-[0.2em] uppercase mb-6 block border-b border-gray-800 pb-3">C+5 Kernel Memory Map</span>
+                    <div id="memoryMap" class="grid grid-cols-8 gap-1.5 flex-1 content-start">
+                        <!-- JS Memory Blocks -->
+                    </div>
+                    <div class="mt-8 p-4 bg-black/60 border border-gray-800 rounded-lg">
+                        <div class="flex justify-between text-[8px] mb-2 font-bold tracking-widest">
+                            <span class="text-gray-500 uppercase">Buffer Saturation</span>
+                            <span class="text-green-500">STABLE</span>
+                        </div>
+                        <div class="h-1 bg-gray-900 rounded-full overflow-hidden">
+                            <div class="h-full bg-green-500 w-[12%] shadow-[0_0_10px_#00ff41]"></div>
+                        </div>
+                        <p class="text-[8px] text-gray-600 font-mono mt-3 leading-relaxed">
+                            Hardened C+5 memory isolation prevents unauthorized pointer arithmetic in user-space segments.
+                        </p>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- CENTER: STRATEGIC OVERVIEW -->
+            <main class="col-span-12 lg:col-span-6 flex flex-col gap-1 overflow-hidden relative">
+                <div class="flex-1 secure-panel grid-bg p-8 flex flex-col relative overflow-hidden">
+                    
+                    <!-- Atmospheric Overlay -->
+                    <div class="absolute top-0 left-0 w-full h-full pointer-events-none bg-gradient-to-t from-black/60 to-transparent"></div>
+
+                    <div class="flex justify-between items-start mb-8 relative z-10">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white tracking-[0.4em] uppercase font-['Orbitron']">Silo Telemetry</h2>
+                            <p class="text-xs text-green-500/80 font-mono tracking-widest mt-1">UPLINK_STATUS: ENCRYPTED_SATELLITE_LINK_07</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xs text-white font-bold font-mono">NORTH_HEMISPHERE</span>
+                                <div class="h-3 w-3 bg-red-600 rounded-full status-danger"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tactical Map -->
+                    <div class="flex-1 relative border border-gray-800 bg-black/60 rounded-xl overflow-hidden flex items-center justify-center group z-10 shadow-2xl">
+                        <div id="radarPulse" class="absolute h-1 w-1 bg-red-500 rounded-full scale-0 opacity-0 z-20"></div>
+                        <canvas id="tacticalMap" class="w-full h-full"></canvas>
+                        
+                        <!-- Overlay Labels -->
+                        <div class="absolute inset-0 p-6 pointer-events-none flex flex-col justify-between">
+                            <div class="flex justify-between items-start">
+                                <div class="bg-black/80 border border-gray-800 p-3 rounded-lg text-[9px] font-mono space-y-2">
+                                    <p class="text-blue-400 font-bold uppercase tracking-widest border-b border-gray-800 pb-1 mb-1">Targeting Data</p>
+                                    <p class="text-white">AZIMUTH: 188.42°</p>
+                                    <p class="text-white">ELEVATION: 12.11°</p>
+                                    <p class="text-gray-500">TRAJECTORY: CALCULATING...</p>
+                                </div>
+                                <div class="text-right space-y-1">
+                                    <div class="px-2 py-1 bg-green-500/10 text-green-500 border border-green-500/30 rounded font-bold text-[8px]">ACTIVE_SCAN</div>
+                                    <div class="px-2 py-1 bg-blue-500/10 text-blue-500 border border-blue-500/30 rounded font-bold text-[8px]">SAT_LINK_V4</div>
+                                </div>
+                            </div>
+                            <div class="flex justify-center">
+                                <div class="bg-black/90 border-2 border-gray-800 p-4 rounded-xl flex gap-10 items-center">
+                                    <div class="text-center">
+                                        <p class="text-[8px] text-gray-500 uppercase font-bold mb-1">Nuclear Yield</p>
+                                        <p class="text-lg text-white font-['Orbitron'] font-bold">50MT</p>
+                                    </div>
+                                    <div class="h-10 w-px bg-gray-800"></div>
+                                    <div class="text-center">
+                                        <p class="text-[8px] text-gray-500 uppercase font-bold mb-1">Impact Probability</p>
+                                        <p class="text-lg text-red-500 font-['Orbitron'] font-bold">0.0001%</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- C+5 Hardened Control Deck -->
+                    <div class="mt-8 grid grid-cols-4 gap-4 relative z-10">
+                        <div onclick="simulateAuth('Vault Access')" class="p-4 bg-gray-900 border border-gray-800 rounded-xl hover:border-green-500 transition-all cursor-pointer text-center group">
+                            <i class="fas fa-database text-green-500 mb-2 group-hover:scale-110 transition-transform"></i>
+                            <p class="text-[9px] font-bold text-gray-400 tracking-widest uppercase">VAULT_COMM</p>
+                        </div>
+                        <div onclick="simulateAuth('Mesh Relay')" class="p-4 bg-gray-900 border border-gray-800 rounded-xl hover:border-blue-500 transition-all cursor-pointer text-center group">
+                            <i class="fas fa-project-diagram text-blue-500 mb-2 group-hover:scale-110 transition-transform"></i>
+                            <p class="text-[9px] font-bold text-gray-400 tracking-widest uppercase">MESH_CONTROL</p>
+                        </div>
+                        <div onclick="simulateAuth('Reactor Telemetry')" class="p-4 bg-gray-900 border border-gray-800 rounded-xl hover:border-yellow-500 transition-all cursor-pointer text-center group">
+                            <i class="fas fa-bolt text-yellow-500 mb-2 group-hover:scale-110 transition-transform"></i>
+                            <p class="text-[9px] font-bold text-gray-400 tracking-widest uppercase">CORE_TELEM</p>
+                        </div>
+                        <div onclick="simulateAuth('Suppress Countermeasures')" class="p-4 bg-gray-900 border border-gray-800 rounded-xl hover:border-red-500 transition-all cursor-pointer text-center group">
+                            <i class="fas fa-shield-virus text-red-500 mb-2 group-hover:scale-110 transition-transform"></i>
+                            <p class="text-[9px] font-bold text-gray-400 tracking-widest uppercase">DEFENSE_ACT</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- RIGHT: THREAT TELEMETRY -->
+            <aside class="col-span-12 lg:col-span-3 flex flex-col gap-1 overflow-hidden">
+                
+                <!-- SYSTEM LOGS -->
+                <div class="secure-panel flex-1 flex flex-col overflow-hidden">
+                    <div class="p-4 border-b border-gray-800 bg-black/60 flex justify-between items-center">
+                        <span class="text-[10px] font-bold text-white tracking-[0.2em] uppercase">Tactical Feed</span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[8px] text-gray-500 uppercase font-mono">Filter: Critical</span>
+                            <div class="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
+                        </div>
+                    </div>
+                    <div id="logScroll" class="p-5 font-mono text-[10px] space-y-3 overflow-y-auto flex-1 bg-black/20">
+                        <!-- Entries added via JS -->
+                    </div>
+                </div>
+
+                <!-- ENCRYPTOR MODULE -->
+                <div class="secure-panel p-6 h-56">
+                    <span class="text-[10px] font-bold text-white tracking-[0.2em] uppercase mb-6 block border-b border-gray-800 pb-3">RSA-8192 Entropy Flow</span>
+                    <div class="flex items-end justify-center gap-1.5 h-24">
+                        <div class="entropy-bar w-3 bg-blue-500/80 rounded-t h-[40%] transition-all duration-300"></div>
+                        <div class="entropy-bar w-3 bg-blue-500/80 rounded-t h-[70%] transition-all duration-300"></div>
+                        <div class="entropy-bar w-3 bg-blue-500/80 rounded-t h-[50%] transition-all duration-300"></div>
+                        <div class="entropy-bar w-3 bg-blue-500/80 rounded-t h-[90%] transition-all duration-300 shadow-[0_0_15px_rgba(59,130,246,0.5)]"></div>
+                        <div class="entropy-bar w-3 bg-blue-500/80 rounded-t h-[60%] transition-all duration-300"></div>
+                        <div class="entropy-bar w-3 bg-blue-500/80 rounded-t h-[80%] transition-all duration-300"></div>
+                        <div class="entropy-bar w-3 bg-blue-500/80 rounded-t h-[30%] transition-all duration-300"></div>
+                    </div>
+                    <p class="text-[8px] text-center text-gray-500 font-mono mt-4 uppercase">Source Integrity: High</p>
+                </div>
+            </aside>
+
+        </div>
+
+        <!-- COMMANDER FOOTER -->
+        <footer class="h-10 bg-black border-t border-gray-800 flex items-center px-8 justify-between text-[10px] font-mono shrink-0">
+            <div class="flex gap-6">
+                <span class="text-gray-500 uppercase">Kernel: <span class="text-green-500 font-bold">Hardened C+5 V10.2</span></span>
+                <span class="text-gray-500 uppercase">Architecture: <span class="text-blue-500 font-bold">ARM_Q64_CRYPTO</span></span>
+            </div>
+            <div class="flex items-center gap-4">
+                <span class="text-gray-700 hidden md:block uppercase tracking-widest font-bold">Nuclear Safety Interlock: Engaged</span>
+                <div class="h-3 w-3 rounded-full bg-blue-500 shadow-[0_0_10px_#3b82f6] animate-pulse"></div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- HIGH-CLEARANCE VERIFICATION MODAL -->
+    <div id="secureModal" class="fixed inset-0 z-[2000] hidden bg-black/98 backdrop-blur-3xl flex items-center justify-center p-4">
+        <div class="max-w-lg w-full secure-panel p-12 border-2 border-green-500/30 nuclear-glow bg-black">
+            <div class="text-center">
+                <div class="mb-8">
+                    <i id="modalIcon" class="fas fa-dna text-7xl text-blue-500 animate-pulse"></i>
+                </div>
+                <h3 id="modalTitle" class="text-2xl font-bold text-white tracking-[0.5em] font-['Orbitron'] mb-4 uppercase">HANDSHAKE_INIT</h3>
+                <p id="modalMsg" class="text-[10px] text-gray-500 mb-10 uppercase tracking-[0.2em] leading-loose px-4 italic">Establishing zero-trust tunnel. Validating source IP against nuclear-command whitelist.</p>
+                
+                <div class="space-y-6">
+                    <div class="bg-black/80 p-6 font-mono text-[10px] text-green-500 text-left h-48 overflow-hidden border border-gray-800 rounded-xl relative shadow-inner">
+                        <div id="modalTerminal"></div>
+                        <div class="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-black to-transparent pointer-events-none"></div>
+                    </div>
+                    <div class="h-1.5 bg-gray-900 rounded-full overflow-hidden">
+                        <div id="modalBar" class="h-full bg-blue-500 w-0 transition-all duration-300 shadow-[0_0_15px_#3b82f6]"></div>
+                    </div>
+                </div>
+
+                <div id="modalBtn" class="mt-12 hidden">
+                    <button onclick="hideModal()" class="w-full py-5 bg-green-600 hover:bg-green-500 text-black font-bold uppercase tracking-[0.6em] rounded-xl transition-all shadow-[0_0_30px_rgba(0,255,65,0.4)] transform hover:scale-[1.02]">AUTHORIZE_ACCESS</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. DIGITAL CODE RAIN (KERNEL DATA FLOW) ---
+        const rainCanvas = document.getElementById('codeRain');
+        const rCtx = rainCanvas.getContext('2d');
+
+        let rWidth, rHeight, rColumns;
+        const rFontSize = 16;
+        const rChars = "01#$%&@*ｦｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ".split("");
+        let rDrops = [];
+
+        function initRain() {
+            rWidth = rainCanvas.width = window.innerWidth;
+            rHeight = rainCanvas.height = window.innerHeight;
+            rColumns = Math.floor(rWidth / rFontSize);
+            rDrops = [];
+            for (let i = 0; i < rColumns; i++) {
+                rDrops[i] = Math.random() * -100;
+            }
+        }
+
+        function drawRain() {
+            rCtx.fillStyle = "rgba(5, 5, 7, 0.1)"; // Dark fade
+            rCtx.fillRect(0, 0, rWidth, rHeight);
+            rCtx.fillStyle = "#00ff41";
+            rCtx.font = rFontSize + "px 'JetBrains Mono'";
+
+            for (let i = 0; i < rDrops.length; i++) {
+                const text = rChars[Math.floor(Math.random() * rChars.length)];
+                rCtx.fillText(text, i * rFontSize, rDrops[i] * rFontSize);
+
+                if (rDrops[i] * rFontSize > rHeight && Math.random() > 0.975) {
+                    rDrops[i] = 0;
+                }
+                rDrops[i]++;
+            }
+        }
+
+        window.addEventListener('resize', initRain);
+        initRain();
+        setInterval(drawRain, 60);
+
+        // --- 2. IP CAPTURE & TRACE ---
+        let currentClientIP = "0.0.0.0";
+        async function fetchSourceInfo() {
+            const ipEl = document.getElementById('capturedIP');
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                currentClientIP = data.ip;
+                ipEl.innerText = currentClientIP;
+                pushLog(`[NET_TRACE] Connection established with remote node: ${currentClientIP}`, "blue");
+            } catch (e) {
+                ipEl.innerText = "AIR_GAPPED_LOCAL";
+                pushLog("[CRITICAL] External tracing blocked. Operating in isolated air-gap mode.", "red");
+            }
+        }
+        fetchSourceInfo();
+
+        // --- 3. DYNAMIC SYSTEM DATA ---
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('realTime').innerText = now.toUTCString().split(' ')[4] + ' UTC';
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Memory Grid
+        const memoryMap = document.getElementById('memoryMap');
+        for(let i=0; i<80; i++) {
+            const div = document.createElement('div');
+            const state = Math.random() > 0.9 ? 'bg-red-500 animate-pulse' : (Math.random() > 0.8 ? 'bg-blue-600' : 'bg-green-950/30');
+            div.className = `h-2 rounded-sm ${state} border border-white/5 cursor-crosshair`;
+            memoryMap.appendChild(div);
+        }
+
+        // Live Log System
+        const logScroll = document.getElementById('logScroll');
+        const hardenedLogs = [
+            "C+5_KERN: std::hardened_ptr dereferenced successfully.",
+            "QKD_SYNC: Polarization shift detected. Correcting...",
+            "DMA_MONITOR: Memory block 0xFF4A zeroed for privacy.",
+            "SHIELD: Heuristic layer blocked unauthorized DMA jump.",
+            "SAT_UPLINK: Frame integrity 100% verified.",
+            "HSM: Key distribution via cold-storage module active.",
+            "THERMAL: Core logic at 32°C. Cooling nominal.",
+            "AUTH: DNA-Hash sequence match complete for KANISHK."
+        ];
+
+        function pushLog(manualText, color = "green") {
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+            const logText = manualText || hardenedLogs[Math.floor(Math.random() * hardenedLogs.length)];
+            const div = document.createElement('div');
+            div.className = "log-entry p-1 rounded";
+            div.innerHTML = `<span class="text-gray-700">[${time}]</span> <span class="text-${color}-500/80">[${currentClientIP}] ${logText}</span>`;
+            logScroll.appendChild(div);
+            logScroll.scrollTop = logScroll.scrollHeight;
+            if(logScroll.childNodes.length > 50) logScroll.removeChild(logScroll.firstChild);
+        }
+        setInterval(() => pushLog(), 4000);
+
+        // --- 4. TACTICAL MAP RENDERING ---
+        const mapCanvas = document.getElementById('tacticalMap');
+        const mCtx = mapCanvas.getContext('2d');
+        
+        function resizeMap() {
+            mapCanvas.width = mapCanvas.parentElement.clientWidth;
+            mapCanvas.height = mapCanvas.parentElement.clientHeight;
+        }
+        window.addEventListener('resize', resizeMap);
+        resizeMap();
+
+        function drawMap() {
+            const w = mapCanvas.width;
+            const h = mapCanvas.height;
+            mCtx.clearRect(0,0,w,h);
+            
+            // Circles
+            mCtx.strokeStyle = "rgba(0, 255, 65, 0.2)";
+            mCtx.lineWidth = 1;
+            mCtx.beginPath();
+            mCtx.arc(w/2, h/2, h/3, 0, Math.PI*2);
+            mCtx.stroke();
+            
+            // Scanning Line
+            const angle = (Date.now() / 1000) % (Math.PI * 2);
+            mCtx.beginPath();
+            mCtx.moveTo(w/2, h/2);
+            mCtx.lineTo(w/2 + Math.cos(angle) * (w/2), h/2 + Math.sin(angle) * (w/2));
+            mCtx.strokeStyle = "rgba(0, 255, 65, 0.5)";
+            mCtx.stroke();
+
+            // Random "Anomalies"
+            mCtx.fillStyle = "rgba(239, 68, 68, 0.8)";
+            mCtx.beginPath();
+            mCtx.arc(w/2 + 50, h/2 - 30, 2, 0, Math.PI*2);
+            mCtx.fill();
+
+            requestAnimationFrame(drawMap);
+        }
+        drawMap();
+
+        // --- 5. AUTH MODAL SIMULATION ---
+        function simulateAuth(action) {
+            const modal = document.getElementById('secureModal');
+            const title = document.getElementById('modalTitle');
+            const term = document.getElementById('modalTerminal');
+            const bar = document.getElementById('modalBar');
+            const btn = document.getElementById('modalBtn');
+            const icon = document.getElementById('modalIcon');
+
+            modal.classList.remove('hidden');
+            btn.classList.add('hidden');
+            term.innerHTML = '';
+            bar.style.width = '0%';
+            title.innerText = action;
+            icon.className = "fas fa-dna text-7xl text-blue-500 animate-pulse";
+            
+            const steps = [
+                `> INTERCEPTING REMOTE_IP: ${currentClientIP}...`,
+                "> OPENING C+5 HARDENED KERNEL WRAPPER...",
+                "> ISOLATING DMA_STACK_L1...",
+                "> INJECTING QUANTUM NOISE INTO ENTROPY POOL...",
+                "> VERIFYING HARDWARE-ENFORCED POINTER INTEGRITY...",
+                "> BROADCASTING HANDSHAKE PACKET (AES-GCM-256)...",
+                "> FINALIZING STRATEGIC AUTHORIZATION..."
+            ];
+
+            let step = 0;
+            const interval = setInterval(() => {
+                if(step < steps.length) {
+                    term.innerHTML += `<div class="mb-1">${steps[step]}</div>`;
+                    term.scrollTop = term.scrollHeight;
+                    bar.style.width = ((step+1) / steps.length) * 100 + '%';
+                    step++;
+                } else {
+                    clearInterval(interval);
+                    title.innerText = "PRIVILEGE_GRANTED";
+                    icon.className = "fas fa-shield-check text-7xl text-green-500";
+                    term.innerHTML += `<div class="text-white mt-4 font-bold uppercase tracking-widest text-center py-2 border-y border-white/20">ACCESS LOGGED TO IMMUTABLE LEDGER</div>`;
+                    btn.classList.remove('hidden');
+                    pushLog(`Manual override requested: ${action} [GRANTED]`, "yellow");
+                }
+            }, 700);
+        }
+
+        function hideModal() {
+            document.getElementById('secureModal').classList.add('hidden');
+        }
+
+        // Entropy Logic
+        setInterval(() => {
+            document.querySelectorAll('.entropy-bar').forEach(bar => {
+                bar.style.height = (Math.random() * 80 + 10) + '%';
+            });
+        }, 300);
+    </script>
+</body>
+</html>
